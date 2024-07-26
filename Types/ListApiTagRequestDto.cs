@@ -1,7 +1,7 @@
 
 namespace ProjectName.Types
 {
-    public class ListAuthorRequestDto
+    public class ListApiTagRequestDto
     {
         public int PageLimit { get; set; }
         public int PageOffset { get; set; }

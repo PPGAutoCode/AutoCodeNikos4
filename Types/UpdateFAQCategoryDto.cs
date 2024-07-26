@@ -1,11 +1,12 @@
 
+using System;
+
 namespace ProjectName.Types
 {
-    public class Author
+    public class UpdateFAQCategoryDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public Guid? Image { get; set; }
-        public string? Details { get; set; }
+        public string Description { get; set; }
     }
 }

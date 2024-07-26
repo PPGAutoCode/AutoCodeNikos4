@@ -14,7 +14,7 @@ namespace ProjectName.Interfaces
         /// Creates a new author based on the provided data.
         /// </summary>
         /// <param name="createAuthorDto">Data transfer object containing information for creating a new author.</param>
-        /// <returns>A string representing the result of the creation operation.</returns>
+        /// <returns>A string indicating the result of the operation.</returns>
         Task<string> CreateAuthor(CreateAuthorDto createAuthorDto);
 
         /// <summary>
@@ -28,14 +28,14 @@ namespace ProjectName.Interfaces
         /// Updates an existing author based on the provided data.
         /// </summary>
         /// <param name="updateAuthorDto">Data transfer object containing information for updating an author.</param>
-        /// <returns>A string representing the result of the update operation.</returns>
+        /// <returns>A string indicating the result of the operation.</returns>
         Task<string> UpdateAuthor(UpdateAuthorDto updateAuthorDto);
 
         /// <summary>
         /// Deletes an author based on the provided data.
         /// </summary>
         /// <param name="deleteAuthorDto">Data transfer object containing information for deleting an author.</param>
-        /// <returns>A boolean indicating the success of the deletion operation.</returns>
+        /// <returns>A boolean indicating whether the operation was successful.</returns>
         Task<bool> DeleteAuthor(DeleteAuthorDto deleteAuthorDto);
 
         /// <summary>
