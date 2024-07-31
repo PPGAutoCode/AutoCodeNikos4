@@ -1,9 +1,8 @@
 
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using ProjectName.Types;
 using ProjectName.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ProjectName.Controllers
 {
