@@ -87,58 +87,27 @@ public class PhpSdkSettingsService : IPhpSdkSettingsService
             throw new TechnicalException("DP-404", "Technical Error");
         }
 
-        // Step 3: Begin a transaction and update the PhpSdkSettings object in the database
-        const string sql = @"
-            UPDATE PhpSdkSettings
-            SET 
-                PhpSdkSettingsProfileName = @PhpSdkSettingsProfileName,
-                IDSPortalEnabled = @IDSPortalEnabled,
-                TokenUrl = @TokenUrl,
-                AuthorizationUrl = @AuthorizationUrl,
-                UserInfoUrl = @UserInfoUrl,
-                PortalUrl = @PortalUrl,
-                ClientId = @ClientId,
-                ClientSecret = @ClientSecret,
-                GrantType = @GrantType,
-                Scope = @Scope,
-                HeaderIBMClientId = @HeaderIBMClientId,
-                HeaderIBMClientSecret = @HeaderIBMClientSecret,
-                IDSConnectLogoutUrl = @IDSConnectLogoutUrl,
-                ExternalNbgApisClientId = @ExternalNbgApisClientId,
-                ExternalNbgApisClientSecret = @ExternalNbgApisClientSecret,
-                ExternalNbgApisrGandType = @ExternalNbgApisrGandType,
-                ExternalNbgApisScope = @ExternalNbgApisScope,
-                NbgAnalyticsApiDisplayApplicationAnalytics = @NbgAnalyticsApiDisplayApplicationAnalytics,
-                NbgAnalyticsApiDevelopment = @NbgAnalyticsApiDevelopment,
-                NbgAnalyticsApiDevelopmentSandboxId = @NbgAnalyticsApiDevelopmentSandboxId,
-                NbgAnalyticsApiDevelopmentSumAggregatesPerEndpointUrl = @NbgAnalyticsApiDevelopmentSumAggregatesPerEndpointUrl,
-                NbgAnalyticsApiDevelopmentSumAggregatesPerEndpointPerDayUrl = @NbgAnalyticsApiDevelopmentSumAggregatesPerEndpointPerDayUrl,
-                NbgAnalyticsApiDevelopmentScopes = @NbgAnalyticsApiDevelopmentScopes,
-                NbgAnalyticsApiProductionSumAggregatesPerEndpointUrl = @NbgAnalyticsApiProductionSumAggregatesPerEndpointUrl,
-                NbgAnalyticsApiProductionSumAggregatesPerEndpointPerDayUrl = @NbgAnalyticsApiProductionSumAggregatesPerEndpointPerDayUrl,
-                NbgAnalyticsApiProductionScopes = @NbgAnalyticsApiProductionScopes,
-                NbgCertificateValidationApiDevelopment = @NbgCertificateValidationApiDevelopment,
-                NbgCertificateValidationApiDevelopmentSandboxId = @NbgCertificateValidationApiDevelopmentSandboxId,
-                NbgCertificateValidationApiDevelopmentCertificateValidationUrl = @NbgCertificateValidationApiDevelopmentCertificateValidationUrl,
-                NbgCertificateValidationApiDevelopmentScopes = @NbgCertificateValidationApiDevelopmentScopes,
-                NbgCertificateValidationApiProductionCertificateValidationUrl = @NbgCertificateValidationApiProductionCertificateValidationUrl,
-                NbgCertificateValidationApiProductionScopes = @NbgCertificateValidationApiProductionScopes,
-                EmailUrlsReactUrl = @EmailUrlsReactUrl,
-                EmailUrlsDrupalUrl = @EmailUrlsDrupalUrl,
-                EmailUrlsDrupalUrlAdmin = @EmailUrlsDrupalUrlAdmin,
-                AdminEmailAddress = @AdminEmailAddress,
-                GeneralConfigurationsMaxAppsPerUser = @GeneralConfigurationsMaxAppsPerUser,
-                GeneralConfigurationsDisableSnippetGeneration = @GeneralConfigurationsDisableSnippetGeneration,
-                GeneralConfigurationsDisableDocumentationGeneration = @GeneralConfigurationsDisableDocumentationGeneration,
-                JsonApiRoles = @JsonApiRoles
-            WHERE Id = @Id;
-        ";
-
+        // Step 3: Begin a transaction and update the PhpSdkSettings object
         using (var transaction = _dbConnection.BeginTransaction())
         {
             try
             {
-                await _dbConnection.ExecuteAsync(sql, phpSdkSettings, transaction);
+                var sql = "UPDATE PhpSdkSettings SET ";
+                var parameters = new DynamicParameters(phpSdkSettings);
+                var updates = new List<string>();
+
+                foreach (var property in phpSdkSettings.GetType().GetProperties())
+                {
+                    if (property.GetValue(phpSdkSettings) != null && property.Name != "Id")
+                    {
+                        updates.Add($"{property.Name} = @{property.Name}");
+                    }
+                }
+
+                sql += string.Join(", ", updates);
+                sql += " WHERE Id = @Id;";
+
+                await _dbConnection.ExecuteAsync(sql, parameters, transaction);
                 transaction.Commit();
                 return phpSdkSettings.Id.ToString();
             }
@@ -160,20 +129,13 @@ public class PhpSdkSettingsService : IPhpSdkSettingsService
 
         // Step 2: Delete the PhpSdkSettings object from the database
         const string sql = "DELETE FROM PhpSdkSettings WHERE Id = @Id;";
+        var result = await _dbConnection.ExecuteAsync(sql, new { deletePhpSdkSettingsDto.Id });
 
-        using (var transaction = _dbConnection.BeginTransaction())
+        if (result == 0)
         {
-            try
-            {
-                var result = await _dbConnection.ExecuteAsync(sql, new { deletePhpSdkSettingsDto.Id }, transaction);
-                transaction.Commit();
-                return result > 0;
-            }
-            catch (Exception)
-            {
-                transaction.Rollback();
-                throw new TechnicalException("DP-500", "Technical Error");
-            }
+            throw new TechnicalException("DP-500", "Technical Error");
         }
+
+        return true;
     }
 }

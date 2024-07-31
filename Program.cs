@@ -16,6 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IFAQService, FAQService>();
+builder.Services.AddScoped<IBasicPageService, BasicPageService>();
 builder.Services.AddScoped<IPhpSdkSettingsService, PhpSdkSettingsService>();
 builder.Services.AddScoped<IFAQCategoryService, FAQCategoryService>();
 builder.Services.AddScoped<IAppEnvironmentService, AppEnvironmentService>();

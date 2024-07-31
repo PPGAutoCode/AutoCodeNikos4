@@ -18,6 +18,8 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c76b54b1a48a437a9c2f022c8b361a3e16f20/1f/b47b835c/ServiceProvider.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/Implementations/BasicPageService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/Implementations/BasicPageService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Program.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
@@ -35,7 +37,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.ProjectName.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Launch Settings Profile.ProjectName.executor&quot;: &quot;Debug&quot;,
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
@@ -83,7 +85,7 @@
       <workItem from="1721989155707" duration="10743000" />
       <workItem from="1722238409719" duration="37328000" />
       <workItem from="1722411092045" duration="13929000" />
-      <workItem from="1722435729941" duration="2561000" />
+      <workItem from="1722435729941" duration="9193000" />
     </task>
     <servers />
   </component>
