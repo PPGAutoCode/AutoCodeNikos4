@@ -18,6 +18,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c76b54b1a48a437a9c2f022c8b361a3e16f20/1f/b47b835c/ServiceProvider.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/Implementations/ApiTagService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/Implementations/BasicPageService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/Implementations/BasicPageService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Program.cs" root0="FORCE_HIGHLIGHTING" />
@@ -85,7 +86,7 @@
       <workItem from="1721989155707" duration="10743000" />
       <workItem from="1722238409719" duration="37328000" />
       <workItem from="1722411092045" duration="13929000" />
-      <workItem from="1722435729941" duration="9193000" />
+      <workItem from="1722435729941" duration="10226000" />
     </task>
     <servers />
   </component>

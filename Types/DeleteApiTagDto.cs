@@ -3,6 +3,6 @@ namespace ProjectName.Types
 {
     public class DeleteApiTagDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

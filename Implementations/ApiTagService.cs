@@ -1,13 +1,12 @@
-
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using ProjectName.ControllersExceptions;
-using ProjectName.Interfaces;
 using ProjectName.Types;
+using ProjectName.Interfaces;
+using ProjectName.ControllersExceptions;
 
 namespace ProjectName.Services
 {
@@ -22,59 +21,58 @@ namespace ProjectName.Services
 
         public async Task<string> CreateApiTag(CreateApiTagDto request)
         {
-            if (string.IsNullOrEmpty(request.Name))
+            if (string.IsNullOrWhiteSpace(request.Name))
             {
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            var existingTag = await _dbConnection.QueryFirstOrDefaultAsync<ApiTag>(
-                "SELECT * FROM ApiTags WHERE Name = @Name", new { request.Name });
-
-            if (existingTag != null)
-            {
-                return existingTag.Id.ToString();
-            }
-
-            var newApiTag = new ApiTag
+            var apiTag = new ApiTag
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 Version = 1,
-                Created = DateTime.Now,
-                CreatorId = request.CreatorId
+                Created = DateTime.Now
             };
 
-            var sql = @"INSERT INTO ApiTags (Id, Name, Version, Created, CreatorId) 
-                        VALUES (@Id, @Name, @Version, @Created, @CreatorId)";
-
-            var rowsAffected = await _dbConnection.ExecuteAsync(sql, newApiTag);
-
-            if (rowsAffected == 0)
+            const string sql = "INSERT INTO ApiTags (Id, Name, Version, Created) VALUES (@Id, @Name, @Version, @Created)";
+            using (var transaction = _dbConnection.BeginTransaction())
             {
-                throw new TechnicalException("DP-500", "Technical Error");
+                try
+                {
+                    await _dbConnection.ExecuteAsync(sql, apiTag, transaction);
+                    transaction.Commit();
+                    return apiTag.Id.ToString();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
+                }
             }
-
-            return newApiTag.Id.ToString();
         }
 
         public async Task<ApiTag> GetApiTag(ApiTagRequestDto request)
         {
-            if (request.Id == Guid.Empty && string.IsNullOrEmpty(request.Name))
+            if (request.Id == null && string.IsNullOrWhiteSpace(request.Name))
             {
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            ApiTag apiTag;
+            ApiTag apiTag = null;
 
-            if (request.Id != Guid.Empty)
+            if (request.Id != null && string.IsNullOrWhiteSpace(request.Name))
             {
-                apiTag = await _dbConnection.QueryFirstOrDefaultAsync<ApiTag>(
-                    "SELECT * FROM ApiTags WHERE Id = @Id", new { request.Id });
+                const string sql = "SELECT * FROM ApiTags WHERE Id = @Id";
+                apiTag = await _dbConnection.QuerySingleOrDefaultAsync<ApiTag>(sql, new { Id = request.Id });
+            }
+            else if (!string.IsNullOrWhiteSpace(request.Name) && request.Id == null)
+            {
+                const string sql = "SELECT * FROM ApiTags WHERE Name = @Name";
+                apiTag = await _dbConnection.QuerySingleOrDefaultAsync<ApiTag>(sql, new { Name = request.Name });
             }
             else
             {
-                apiTag = await _dbConnection.QueryFirstOrDefaultAsync<ApiTag>(
-                    "SELECT * FROM ApiTags WHERE Name = @Name", new { request.Name });
+                throw new BusinessException("DP-422", "Client Error");
             }
 
             return apiTag;
@@ -82,82 +80,93 @@ namespace ProjectName.Services
 
         public async Task<string> UpdateApiTag(UpdateApiTagDto request)
         {
-            if (request.Id == Guid.Empty || string.IsNullOrEmpty(request.Name) || request.ChangedUser == Guid.Empty)
+            if (request.Id == null)
             {
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            var apiTag = await _dbConnection.QueryFirstOrDefaultAsync<ApiTag>(
-                "SELECT * FROM ApiTags WHERE Id = @Id", new { request.Id });
+            const string selectSql = "SELECT * FROM ApiTags WHERE Id = @Id";
+            var apiTag = await _dbConnection.QuerySingleOrDefaultAsync<ApiTag>(selectSql, new { Id = request.Id });
 
             if (apiTag == null)
             {
                 throw new TechnicalException("DP-404", "Technical Error");
             }
 
-            apiTag.Name = request.Name;
+            apiTag.Name = request.Name ?? apiTag.Name;
             apiTag.Version += 1;
             apiTag.Changed = DateTime.Now;
-            apiTag.ChangedUser = request.ChangedUser;
 
-            var sql = @"UPDATE ApiTags 
-                        SET Name = @Name, Version = @Version, Changed = @Changed, ChangedUser = @ChangedUser 
-                        WHERE Id = @Id";
-
-            var rowsAffected = await _dbConnection.ExecuteAsync(sql, apiTag);
-
-            if (rowsAffected == 0)
+            const string updateSql = "UPDATE ApiTags SET Name = @Name, Version = @Version, Changed = @Changed WHERE Id = @Id";
+            using (var transaction = _dbConnection.BeginTransaction())
             {
-                throw new TechnicalException("DP-500", "Technical Error");
+                try
+                {
+                    await _dbConnection.ExecuteAsync(updateSql, apiTag, transaction);
+                    transaction.Commit();
+                    return apiTag.Id.ToString();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
+                }
             }
-
-            return apiTag.Id.ToString();
         }
 
         public async Task<bool> DeleteApiTag(DeleteApiTagDto request)
         {
-            if (request.Id == Guid.Empty)
+            if (request.Id == null)
             {
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            var apiTag = await _dbConnection.QueryFirstOrDefaultAsync<ApiTag>(
-                "SELECT * FROM ApiTags WHERE Id = @Id", new { request.Id });
+            const string selectSql = "SELECT * FROM ApiTags WHERE Id = @Id";
+            var apiTag = await _dbConnection.QuerySingleOrDefaultAsync<ApiTag>(selectSql, new { Id = request.Id });
 
             if (apiTag == null)
             {
                 throw new TechnicalException("DP-404", "Technical Error");
             }
 
-            var rowsAffected = await _dbConnection.ExecuteAsync(
-                "DELETE FROM ApiTags WHERE Id = @Id", new { request.Id });
-
-            if (rowsAffected == 0)
+            const string deleteSql = "DELETE FROM ApiTags WHERE Id = @Id";
+            using (var transaction = _dbConnection.BeginTransaction())
             {
-                throw new TechnicalException("DP-500", "Technical Error");
+                try
+                {
+                    await _dbConnection.ExecuteAsync(deleteSql, new { Id = request.Id }, transaction);
+                    transaction.Commit();
+                    return true;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
+                }
             }
-
-            return true;
         }
 
         public async Task<List<ApiTag>> GetListApiTag(ListApiTagRequestDto request)
         {
             if (request.PageLimit <= 0 || request.PageOffset < 0)
             {
-                throw new TechnicalException("DP-400", "Technical Error");
+                throw new BusinessException("DP-422", "Client Error");
             }
 
-            var sortField = string.IsNullOrEmpty(request.SortField) ? "Id" : request.SortField;
-            var sortOrder = string.IsNullOrEmpty(request.SortOrder) ? "asc" : request.SortOrder;
+            request.SortField = string.IsNullOrWhiteSpace(request.SortField) ? "Id" : request.SortField;
+            request.SortOrder = string.IsNullOrWhiteSpace(request.SortOrder) ? "asc" : request.SortOrder;
 
-            var sql = $@"SELECT * FROM ApiTags 
-                         ORDER BY {sortField} {sortOrder} 
-                         OFFSET @PageOffset ROWS 
-                         FETCH NEXT @PageLimit ROWS ONLY";
+            var sql = $"SELECT * FROM ApiTags ORDER BY {request.SortField} {request.SortOrder} OFFSET @PageOffset ROWS FETCH NEXT @PageLimit ROWS ONLY";
 
-            var apiTags = await _dbConnection.QueryAsync<ApiTag>(sql, new { request.PageOffset, request.PageLimit });
-
-            return apiTags.ToList();
+            try
+            {
+                var apiTags = await _dbConnection.QueryAsync<ApiTag>(sql, new { PageOffset = request.PageOffset, PageLimit = request.PageLimit });
+                return apiTags.ToList();
+            }
+            catch
+            {
+                throw new TechnicalException("DP-500", "Technical Error");
+            }
         }
     }
 }
