@@ -86,7 +86,7 @@
       <workItem from="1721989155707" duration="10743000" />
       <workItem from="1722238409719" duration="37328000" />
       <workItem from="1722411092045" duration="13929000" />
-      <workItem from="1722435729941" duration="10226000" />
+      <workItem from="1722435729941" duration="14185000" />
     </task>
     <servers />
   </component>
@@ -97,5 +97,24 @@
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Implementations/ApiTagService.cs</url>
+          <line>150</line>
+          <properties documentPath="$PROJECT_DIR$/Implementations/ApiTagService.cs" containingFunctionPresentation="Method 'GetListApiTag'">
+            <startOffsets>
+              <option value="5207" />
+            </startOffsets>
+            <endOffsets>
+              <option value="5260" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
