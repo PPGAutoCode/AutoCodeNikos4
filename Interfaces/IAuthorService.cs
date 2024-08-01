@@ -11,38 +11,38 @@ namespace ProjectName.Interfaces
     public interface IAuthorService
     {
         /// <summary>
-        /// Creates a new author based on the provided data.
+        /// Asynchronously creates a new author.
         /// </summary>
-        /// <param name="createAuthorDto">Data transfer object containing information for creating a new author.</param>
-        /// <returns>A string indicating the result of the operation.</returns>
+        /// <param name="createAuthorDto">The data transfer object containing information for creating a new author.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the string identifier of the created author.</returns>
         Task<string> CreateAuthor(CreateAuthorDto createAuthorDto);
 
         /// <summary>
-        /// Retrieves an author based on the provided request data.
+        /// Asynchronously retrieves an author by the given request.
         /// </summary>
-        /// <param name="authorRequestDto">Data transfer object containing request information for retrieving an author.</param>
-        /// <returns>An AuthorDto object representing the retrieved author.</returns>
+        /// <param name="authorRequestDto">The data transfer object containing the request information for retrieving an author.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the author data transfer object.</returns>
         Task<AuthorDto> GetAuthor(AuthorRequestDto authorRequestDto);
 
         /// <summary>
-        /// Updates an existing author based on the provided data.
+        /// Asynchronously updates an existing author.
         /// </summary>
-        /// <param name="updateAuthorDto">Data transfer object containing information for updating an author.</param>
-        /// <returns>A string indicating the result of the operation.</returns>
+        /// <param name="updateAuthorDto">The data transfer object containing the updated information for the author.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the string identifier of the updated author.</returns>
         Task<string> UpdateAuthor(UpdateAuthorDto updateAuthorDto);
 
         /// <summary>
-        /// Deletes an author based on the provided data.
+        /// Asynchronously deletes an author by the given request.
         /// </summary>
-        /// <param name="deleteAuthorDto">Data transfer object containing information for deleting an author.</param>
-        /// <returns>A boolean indicating whether the operation was successful.</returns>
+        /// <param name="deleteAuthorDto">The data transfer object containing the request information for deleting an author.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating whether the deletion was successful.</returns>
         Task<bool> DeleteAuthor(DeleteAuthorDto deleteAuthorDto);
 
         /// <summary>
-        /// Retrieves a list of authors based on the provided request data.
+        /// Asynchronously retrieves a list of authors based on the given request.
         /// </summary>
-        /// <param name="listAuthorRequestDto">Data transfer object containing request information for retrieving a list of authors.</param>
-        /// <returns>A list of AuthorDto objects representing the retrieved authors.</returns>
+        /// <param name="listAuthorRequestDto">The data transfer object containing the request information for retrieving a list of authors.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of author data transfer objects.</returns>
         Task<List<AuthorDto>> GetListAuthor(ListAuthorRequestDto listAuthorRequestDto);
     }
 }
