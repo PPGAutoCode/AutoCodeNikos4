@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using ProjectName.Types;
@@ -19,22 +21,17 @@ public class AuthorService : IAuthorService
 
     public async Task<string> CreateAuthor(CreateAuthorDto request)
     {
-        // Step 1: Validation
         if (string.IsNullOrEmpty(request.Name))
         {
             throw new BusinessException("DP-422", "Client Error");
         }
 
         Guid? imageId = null;
-
-        // Step 3: Handle Image Creation
         if (request.Image != null)
         {
-            var imageResponse = await _imageService.CreateImage(request.Image);
-            imageId = Guid.Parse(imageResponse);
+            imageId = Guid.Parse(await _imageService.CreateImage(request.Image));
         }
 
-        // Step 4: Create Author Object
         var author = new Author
         {
             Id = Guid.NewGuid(),
@@ -43,12 +40,11 @@ public class AuthorService : IAuthorService
             Details = request.Details
         };
 
-        // Step 5: Database Insertion in a Transaction
         using (var transaction = _dbConnection.BeginTransaction())
         {
             try
             {
-                const string sql = "INSERT INTO Authors (Id, Name, Image, Details) VALUES (@Id, @Name, @Image, @Details)";
+                string sql = "INSERT INTO Authors (Id, Name, Image, Details) VALUES (@Id, @Name, @Image, @Details)";
                 await _dbConnection.ExecuteAsync(sql, author, transaction);
                 transaction.Commit();
             }
@@ -59,99 +55,82 @@ public class AuthorService : IAuthorService
             }
         }
 
-        // Step 6: Return Author Id
         return author.Id.ToString();
     }
 
     public async Task<AuthorDto> GetAuthor(AuthorRequestDto request)
     {
-        // Step 1: Validation
-        if (request.Id == Guid.Empty)
+        if (request.Id == null)
         {
             throw new BusinessException("DP-422", "Client Error");
         }
 
-        // Step 2: Fetch Author from Database
-        const string sql = "SELECT * FROM Authors WHERE Id = @Id";
-        var author = await _dbConnection.QuerySingleOrDefaultAsync<Author>(sql, new { request.Id });
+        string sql = "SELECT * FROM Authors WHERE Id = @Id";
+        var author = await _dbConnection.QuerySingleOrDefaultAsync<Author>(sql, new { Id = request.Id });
 
         if (author == null)
         {
             throw new TechnicalException("DP-404", "Technical Error");
         }
 
-        // Step 3: Fetch Image if Available
-        if (author.Image.HasValue)
+        Image image = null;
+        if (author.Image != null)
         {
-            var imageRequest = new ImageRequestDto { Id = author.Image.Value };
-            var image = await _imageService.GetImage(imageRequest);
-            return new AuthorDto
-            {
-                Id = author.Id,
-                Name = author.Name,
-                Image = image,
-                Details = author.Details
-            };
+            image = await _imageService.GetImage(new ImageRequestDto { Id = author.Image.Value });
         }
 
-        // Step 4: Return AuthorDto without Image
         return new AuthorDto
         {
             Id = author.Id,
             Name = author.Name,
+            Image = image,
             Details = author.Details
         };
     }
 
     public async Task<string> UpdateAuthor(UpdateAuthorDto request)
     {
-        // Step 1: Validation
         if (request.Id == null)
         {
             throw new BusinessException("DP-422", "Client Error");
         }
 
-        // Step 2: Fetch Existing Author
-        var existingAuthor = await GetAuthorById(request.Id.Value);
-        if (existingAuthor == null)
+        string sql = "SELECT * FROM Authors WHERE Id = @Id";
+        var author = await _dbConnection.QuerySingleOrDefaultAsync<Author>(sql, new { Id = request.Id });
+
+        if (author == null)
         {
             throw new TechnicalException("DP-404", "Technical Error");
         }
 
         Guid? imageId = null;
-
-        // Step 3: Handle Image Update or Creation
         if (request.Image != null)
         {
-            if (request.Image.Id.HasValue)
+            if (request.Image.Id == null)
             {
-                await _imageService.UpdateImage(request.Image);
-                imageId = request.Image.Id;
-            }
-            else
-            {
-                var imageResponse = await _imageService.CreateImage(new CreateImageDto
+                imageId = Guid.Parse(await _imageService.CreateImage(new CreateImageDto
                 {
                     ImageName = request.Image.ImageName,
                     ImageFile = request.Image.ImageFile,
                     AltText = request.Image.AltText
-                });
-                imageId = Guid.Parse(imageResponse);
+                }));
+            }
+            else
+            {
+                imageId = Guid.Parse(await _imageService.UpdateImage(request.Image));
             }
         }
 
-        // Step 4: Update Author Object
-        existingAuthor.Name = request.Name ?? existingAuthor.Name;
-        existingAuthor.Details = request.Details ?? existingAuthor.Details;
-        existingAuthor.Image = imageId ?? existingAuthor.Image;
+        author.Name = request.Name;
+        author.Details = request.Details;
+        author.Image = imageId;
 
-        // Step 5: Database Update in a Transaction
         using (var transaction = _dbConnection.BeginTransaction())
         {
             try
             {
-                const string sql = "UPDATE Authors SET Name = @Name, Image = @Image, Details = @Details WHERE Id = @Id";
-                await _dbConnection.ExecuteAsync(sql, existingAuthor, transaction);
+                sql = "UPDATE Authors SET Name = @Name, Details = @Details, Image = @Image WHERE Id = @Id";
+                await _dbConnection.ExecuteAsync(sql, author, transaction);
                 transaction.Commit();
             }
             catch (Exception)
@@ -161,38 +140,35 @@ public class AuthorService : IAuthorService
             }
         }
 
-        // Step 6: Return Author Id
-        return existingAuthor.Id.ToString();
+        return author.Id.ToString();
     }
 
     public async Task<bool> DeleteAuthor(DeleteAuthorDto request)
     {
-        // Step 1: Validation
-        if (request.Id == Guid.Empty)
+        if (request.Id == null)
         {
             throw new BusinessException("DP-422", "Client Error");
         }
 
-        // Step 2: Fetch Existing Author
-        var existingAuthor = await GetAuthorById(request.Id);
-        if (existingAuthor == null)
+        string sql = "SELECT * FROM Authors WHERE Id = @Id";
+        var author = await _dbConnection.QuerySingleOrDefaultAsync<Author>(sql, new { Id = request.Id });
+
+        if (author == null)
         {
             throw new TechnicalException("DP-404", "Technical Error");
         }
 
-        // Step 3: Delete Related Image
-        if (existingAuthor.Image.HasValue)
+        if (author.Image != null)
         {
-            await _imageService.DeleteImage(new DeleteImageDto { Id = existingAuthor.Image.Value });
+            await _imageService.DeleteImage(new DeleteImageDto { Id = author.Image.Value });
         }
 
-        // Step 4: Database Deletion in a Transaction
         using (var transaction = _dbConnection.BeginTransaction())
         {
             try
             {
-                const string sql = "DELETE FROM Authors WHERE Id = @Id";
-                await _dbConnection.ExecuteAsync(sql, new { request.Id }, transaction);
+                sql = "DELETE FROM Authors WHERE Id = @Id";
+                await _dbConnection.ExecuteAsync(sql, new { Id = request.Id }, transaction);
                 transaction.Commit();
             }
             catch (Exception)
@@ -202,13 +178,43 @@ public class AuthorService : IAuthorService
             }
         }
 
-        // Step 5: Return Success
         return true;
     }
 
-    private async Task<Author> GetAuthorById(Guid id)
+    public async Task<List<AuthorDto>> GetListAuthor(ListAuthorRequestDto request)
     {
-        const string sql = "SELECT * FROM Authors WHERE Id = @Id";
-        return await _dbConnection.QuerySingleOrDefaultAsync<Author>(sql, new { Id = id });
+        if (request.PageLimit <= 0 || request.PageOffset < 0)
+        {
+            throw new BusinessException("DP-422", "Client Error");
+        }
+
+        if (string.IsNullOrEmpty(request.SortField) || string.IsNullOrEmpty(request.SortOrder))
+        {
+            request.SortField = "Id";
+            request.SortOrder = "asc";
+        }
+
+        string sql = $"SELECT * FROM Authors ORDER BY {request.SortField} {request.SortOrder} OFFSET @PageOffset ROWS FETCH NEXT @PageLimit ROWS ONLY";
+        var authors = await _dbConnection.QueryAsync<Author>(sql, new { PageOffset = request.PageOffset, PageLimit = request.PageLimit });
+
+        var authorDtos = new List<AuthorDto>();
+        foreach (var author in authors)
+        {
+            Image image = null;
+            if (author.Image != null)
+            {
+                image = await _imageService.GetImage(new ImageRequestDto { Id = author.Image.Value });
+            }
+
+            authorDtos.Add(new AuthorDto
+            {
+                Id = author.Id,
+                Name = author.Name,
+                Image = image,
+                Details = author.Details
+            });
+        }
+
+        return authorDtos;
     }
 }
