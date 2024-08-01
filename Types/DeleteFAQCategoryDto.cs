@@ -1,10 +1,8 @@
-
-using System;
-
+// File: DeleteFAQCategoryDto.cs
 namespace ProjectName.Types
 {
     public class DeleteFAQCategoryDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

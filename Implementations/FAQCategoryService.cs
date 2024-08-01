@@ -1,11 +1,11 @@
-
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using ProjectName.Interfaces;
 using ProjectName.Types;
+using ProjectName.Interfaces;
 using ProjectName.ControllersExceptions;
 
 namespace ProjectName.Services
@@ -34,15 +34,19 @@ namespace ProjectName.Services
             };
 
             const string sql = "INSERT INTO FAQCategories (Id, Name, Description) VALUES (@Id, @Name, @Description)";
-            var affectedRows = await _dbConnection.ExecuteAsync(sql, faqCategory);
-
-            if (affectedRows > 0)
+            using (var transaction = _dbConnection.BeginTransaction())
             {
-                return faqCategory.Id.ToString();
-            }
-            else
-            {
-                throw new TechnicalException("DP-500", "Technical Error");
+                try
+                {
+                    await _dbConnection.ExecuteAsync(sql, faqCategory, transaction);
+                    transaction.Commit();
+                    return faqCategory.Id.ToString();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
+                }
             }
         }
 
@@ -54,16 +58,14 @@ namespace ProjectName.Services
             }
 
             const string sql = "SELECT * FROM FAQCategories WHERE Id = @Id";
-            var faqCategory = await _dbConnection.QuerySingleOrDefaultAsync<FAQCategory>(sql, new { request.Id });
+            var result = await _dbConnection.QuerySingleOrDefaultAsync<FAQCategory>(sql, new { request.Id });
 
-            if (faqCategory != null)
-            {
-                return faqCategory;
-            }
-            else
+            if (result == null)
             {
                 throw new TechnicalException("DP-404", "Technical Error");
             }
+
+            return result;
         }
 
         public async Task<string> UpdateFAQCategory(UpdateFAQCategoryDto request)
@@ -85,15 +87,19 @@ namespace ProjectName.Services
             existingCategory.Description = request.Description ?? existingCategory.Description;
 
             const string updateSql = "UPDATE FAQCategories SET Name = @Name, Description = @Description WHERE Id = @Id";
-            var affectedRows = await _dbConnection.ExecuteAsync(updateSql, existingCategory);
-
-            if (affectedRows > 0)
+            using (var transaction = _dbConnection.BeginTransaction())
             {
-                return existingCategory.Id.ToString();
-            }
-            else
-            {
-                throw new TechnicalException("DP-500", "Technical Error");
+                try
+                {
+                    await _dbConnection.ExecuteAsync(updateSql, existingCategory, transaction);
+                    transaction.Commit();
+                    return existingCategory.Id.ToString();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
+                }
             }
         }
 
@@ -113,15 +119,19 @@ namespace ProjectName.Services
             }
 
             const string deleteSql = "DELETE FROM FAQCategories WHERE Id = @Id";
-            var affectedRows = await _dbConnection.ExecuteAsync(deleteSql, new { request.Id });
-
-            if (affectedRows > 0)
+            using (var transaction = _dbConnection.BeginTransaction())
             {
-                return true;
-            }
-            else
-            {
-                throw new TechnicalException("DP-500", "Technical Error");
+                try
+                {
+                    await _dbConnection.ExecuteAsync(deleteSql, new { request.Id }, transaction);
+                    transaction.Commit();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
+                }
             }
         }
 
@@ -132,25 +142,18 @@ namespace ProjectName.Services
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            var sql = "SELECT * FROM FAQCategories";
+            request.SortField = string.IsNullOrEmpty(request.SortField) ? "Id" : request.SortField;
+            request.SortOrder = string.IsNullOrEmpty(request.SortOrder) ? "asc" : request.SortOrder;
 
-            if (!string.IsNullOrEmpty(request.SortField) && !string.IsNullOrEmpty(request.SortOrder))
-            {
-                sql += $" ORDER BY {request.SortField} {request.SortOrder}";
-            }
+            var sql = $"SELECT * FROM FAQCategories ORDER BY {request.SortField} {request.SortOrder} OFFSET {request.PageOffset} ROWS FETCH NEXT {request.PageLimit} ROWS ONLY";
+            var result = await _dbConnection.QueryAsync<FAQCategory>(sql);
 
-            sql += " OFFSET @PageOffset ROWS FETCH NEXT @PageLimit ROWS ONLY";
-
-            var faqCategories = await _dbConnection.QueryAsync<FAQCategory>(sql, new { request.PageOffset, request.PageLimit });
-
-            if (faqCategories != null)
-            {
-                return faqCategories.AsList();
-            }
-            else
+            if (result == null)
             {
                 throw new TechnicalException("DP-500", "Technical Error");
             }
+
+            return result.ToList();
         }
     }
 }

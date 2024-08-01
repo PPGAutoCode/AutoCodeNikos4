@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Mvc;
 using ProjectName.Types;
 using ProjectName.Interfaces;
@@ -19,52 +18,52 @@ namespace ProjectName.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateFAQCategory([FromBody] Request<CreateFAQCategoryDto> request)
+        public async Task<IActionResult> CreateFAQCategory([FromBody] CreateFAQCategoryDto createFAQCategoryDto)
         {
             return await SafeExecutor.ExecuteAsync(async () =>
             {
-                var result = await _faqCategoryService.CreateFAQCategory(request.Payload);
-                return Ok(new Response<string> { Payload = result });
+                var result = await _faqCategoryService.CreateFAQCategory(createFAQCategoryDto);
+                return Ok(new Response<string>(result));
             });
         }
 
         [HttpPost("get")]
-        public async Task<IActionResult> GetFAQCategory([FromBody] Request<FAQCategoryRequestDto> request)
+        public async Task<IActionResult> GetFAQCategory([FromBody] FAQCategoryRequestDto faqCategoryRequestDto)
         {
             return await SafeExecutor.ExecuteAsync(async () =>
             {
-                var result = await _faqCategoryService.GetFAQCategory(request.Payload);
-                return Ok(new Response<FAQCategory> { Payload = result });
+                var result = await _faqCategoryService.GetFAQCategory(faqCategoryRequestDto);
+                return Ok(new Response<FAQCategory>(result));
             });
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> UpdateFAQCategory([FromBody] Request<UpdateFAQCategoryDto> request)
+        public async Task<IActionResult> UpdateFAQCategory([FromBody] UpdateFAQCategoryDto updateFAQCategoryDto)
         {
             return await SafeExecutor.ExecuteAsync(async () =>
             {
-                var result = await _faqCategoryService.UpdateFAQCategory(request.Payload);
-                return Ok(new Response<string> { Payload = result });
+                var result = await _faqCategoryService.UpdateFAQCategory(updateFAQCategoryDto);
+                return Ok(new Response<string>(result));
             });
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> DeleteFAQCategory([FromBody] Request<DeleteFAQCategoryDto> request)
+        public async Task<IActionResult> DeleteFAQCategory([FromBody] DeleteFAQCategoryDto deleteFAQCategoryDto)
         {
             return await SafeExecutor.ExecuteAsync(async () =>
             {
-                var result = await _faqCategoryService.DeleteFAQCategory(request.Payload);
-                return Ok(new Response<bool> { Payload = result });
+                var result = await _faqCategoryService.DeleteFAQCategory(deleteFAQCategoryDto);
+                return Ok(new Response<bool>(result));
             });
         }
 
         [HttpPost("list")]
-        public async Task<IActionResult> GetListFAQCategory([FromBody] Request<ListFAQCategoryRequestDto> request)
+        public async Task<IActionResult> GetListFAQCategory([FromBody] ListFAQCategoryRequestDto listFAQCategoryRequestDto)
         {
             return await SafeExecutor.ExecuteAsync(async () =>
             {
-                var result = await _faqCategoryService.GetListFAQCategory(request.Payload);
-                return Ok(new Response<List<FAQCategory>> { Payload = result });
+                var result = await _faqCategoryService.GetListFAQCategory(listFAQCategoryRequestDto);
+                return Ok(new Response<List<FAQCategory>>(result));
             });
         }
     }

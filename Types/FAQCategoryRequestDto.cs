@@ -1,10 +1,8 @@
-
-using System;
-
+// File: FAQCategoryRequestDto.cs
 namespace ProjectName.Types
 {
     public class FAQCategoryRequestDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

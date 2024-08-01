@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ProjectName.Types;
@@ -13,36 +12,36 @@ namespace ProjectName.Interfaces
         /// <summary>
         /// Creates a new FAQ category.
         /// </summary>
-        /// <param name="createFAQCategoryDto">The data transfer object containing the details of the FAQ category to be created.</param>
-        /// <returns>A string representing the identifier of the newly created FAQ category.</returns>
+        /// <param name="createFAQCategoryDto">Data transfer object for creating a FAQ category.</param>
+        /// <returns>A string representing the result of the creation operation.</returns>
         Task<string> CreateFAQCategory(CreateFAQCategoryDto createFAQCategoryDto);
 
         /// <summary>
-        /// Retrieves a specific FAQ category based on the provided request details.
+        /// Retrieves a FAQ category based on the provided request.
         /// </summary>
-        /// <param name="faqCategoryRequestDto">The data transfer object containing the request details for the FAQ category.</param>
-        /// <returns>An FAQCategory object representing the requested FAQ category.</returns>
+        /// <param name="faqCategoryRequestDto">Data transfer object for requesting a FAQ category.</param>
+        /// <returns>A FAQ category object.</returns>
         Task<FAQCategory> GetFAQCategory(FAQCategoryRequestDto faqCategoryRequestDto);
 
         /// <summary>
         /// Updates an existing FAQ category.
         /// </summary>
-        /// <param name="updateFAQCategoryDto">The data transfer object containing the updated details of the FAQ category.</param>
-        /// <returns>A string representing the identifier of the updated FAQ category.</returns>
+        /// <param name="updateFAQCategoryDto">Data transfer object for updating a FAQ category.</param>
+        /// <returns>A string representing the result of the update operation.</returns>
         Task<string> UpdateFAQCategory(UpdateFAQCategoryDto updateFAQCategoryDto);
 
         /// <summary>
-        /// Deletes a specific FAQ category based on the provided details.
+        /// Deletes a FAQ category.
         /// </summary>
-        /// <param name="deleteFAQCategoryDto">The data transfer object containing the details of the FAQ category to be deleted.</param>
-        /// <returns>A boolean indicating whether the FAQ category was successfully deleted.</returns>
+        /// <param name="deleteFAQCategoryDto">Data transfer object for deleting a FAQ category.</param>
+        /// <returns>A boolean indicating the success of the deletion operation.</returns>
         Task<bool> DeleteFAQCategory(DeleteFAQCategoryDto deleteFAQCategoryDto);
 
         /// <summary>
-        /// Retrieves a list of FAQ categories based on the provided request details.
+        /// Retrieves a list of FAQ categories based on the provided request.
         /// </summary>
-        /// <param name="listFAQCategoryRequestDto">The data transfer object containing the request details for the list of FAQ categories.</param>
-        /// <returns>A list of FAQCategory objects representing the requested FAQ categories.</returns>
+        /// <param name="listFAQCategoryRequestDto">Data transfer object for requesting a list of FAQ categories.</param>
+        /// <returns>A list of FAQ category objects.</returns>
         Task<List<FAQCategory>> GetListFAQCategory(ListFAQCategoryRequestDto listFAQCategoryRequestDto);
     }
 }
