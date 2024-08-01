@@ -1,14 +1,12 @@
-
 using Microsoft.AspNetCore.Mvc;
 using ProjectName.Types;
 using ProjectName.Interfaces;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ProjectName.Controllers
 {
     [ApiController]
-    [Route("faq")]
+    [Route("api/[controller]")]
     public class FaqController : ControllerBase
     {
         private readonly IFAQService _faqService;

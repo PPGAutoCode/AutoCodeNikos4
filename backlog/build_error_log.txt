@@ -1,4 +1,2 @@
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/FAQService.cs(129,33): error CS0029: Cannot implicitly convert type 'System.Collections.Generic.List<System.Guid?>' to 'System.Collections.Generic.List<System.Guid>'
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/FAQService.cs(305,37): error CS0029: Cannot implicitly convert type 'System.Collections.Generic.List<System.Guid?>' to 'System.Collections.Generic.List<System.Guid>'
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/FAQService.cs(44,35): error CS1503: Argument 1: cannot convert from 'System.Guid?' to 'System.Guid'
-Error: 3 Error(s)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/FAQService.cs(61,25): error CS0266: Cannot implicitly convert type 'System.Guid?' to 'System.Guid'. An explicit conversion exists (are you missing a cast?)
+Error: 1 Error(s)

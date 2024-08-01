@@ -1,0 +1,11 @@
+#File: FAQs.sql
+CREATE TABLE FAQs (
+    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    Question NVARCHAR(500) NOT NULL,
+    Answer NVARCHAR(MAX) NOT NULL,
+    Langcode NVARCHAR(4) NOT NULL,
+    Status BIT NULL,
+    Created DATETIME2(7) NOT NULL,
+    Changed DATETIME2(7) NOT NULL,
+    FaqOrder INT NULL
+);
