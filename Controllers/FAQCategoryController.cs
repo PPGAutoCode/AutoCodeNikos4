@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ProjectName.Types;
 using ProjectName.Interfaces;
@@ -22,7 +24,7 @@ namespace ProjectName.Controllers
             return await SafeExecutor.ExecuteAsync(async () =>
             {
                 var result = await _faqCategoryService.CreateFAQCategory(request.Payload);
-                return new Response<string> { Payload = result };
+                return Ok(new Response<string> { Payload = result });
             });
         }
 
@@ -32,7 +34,7 @@ namespace ProjectName.Controllers
             return await SafeExecutor.ExecuteAsync(async () =>
             {
                 var result = await _faqCategoryService.GetFAQCategory(request.Payload);
-                return new Response<FAQCategory> { Payload = result };
+                return Ok(new Response<FAQCategory> { Payload = result });
             });
         }
 
@@ -42,7 +44,7 @@ namespace ProjectName.Controllers
             return await SafeExecutor.ExecuteAsync(async () =>
             {
                 var result = await _faqCategoryService.UpdateFAQCategory(request.Payload);
-                return new Response<string> { Payload = result };
+                return Ok(new Response<string> { Payload = result });
             });
         }
 
@@ -52,7 +54,7 @@ namespace ProjectName.Controllers
             return await SafeExecutor.ExecuteAsync(async () =>
             {
                 var result = await _faqCategoryService.DeleteFAQCategory(request.Payload);
-                return new Response<bool> { Payload = result };
+                return Ok(new Response<bool> { Payload = result });
             });
         }
 
@@ -62,7 +64,7 @@ namespace ProjectName.Controllers
             return await SafeExecutor.ExecuteAsync(async () =>
             {
                 var result = await _faqCategoryService.GetListFAQCategory(request.Payload);
-                return new Response<List<FAQCategory>> { Payload = result };
+                return Ok(new Response<List<FAQCategory>> { Payload = result });
             });
         }
     }
