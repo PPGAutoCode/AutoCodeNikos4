@@ -1,6 +1,1 @@
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(33,17): error CS0117: 'AllowedGrantType' does not contain a definition for 'Version'
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(34,17): error CS0117: 'AllowedGrantType' does not contain a definition for 'Created'
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(35,17): error CS0117: 'AllowedGrantType' does not contain a definition for 'Changed'
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(91,31): error CS1061: 'AllowedGrantType' does not contain a definition for 'Version' and no accessible extension method 'Version' accepting a first argument of type 'AllowedGrantType' could be found (are you missing a using directive or an assembly reference?)
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(92,31): error CS1061: 'AllowedGrantType' does not contain a definition for 'Changed' and no accessible extension method 'Changed' accepting a first argument of type 'AllowedGrantType' could be found (are you missing a using directive or an assembly reference?)
-Error: 5 Error(s)
+Error: 0 Error(s)
