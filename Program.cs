@@ -16,6 +16,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IFAQService, FAQService>();
+builder.Services.AddScoped<IProductTagService, ProductTagService>();
+builder.Services.AddScoped<ISupportTicketStateService, SupportTicketStateService>();
 builder.Services.AddScoped<IBasicPageService, BasicPageService>();
 builder.Services.AddScoped<IAppTagService, AppTagService>();
 builder.Services.AddScoped<IContactService, ContactService>();
