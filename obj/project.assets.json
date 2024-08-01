@@ -10351,26 +10351,26 @@
     ]
   },
   "packageFolders": {
-    "/Users/nkostop/.nuget/packages/": {}
+    "/Users/dagnikos/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/ProjectName.csproj",
+      "projectUniqueName": "/Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/ProjectName.csproj",
       "projectName": "ProjectName",
-      "projectPath": "/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/ProjectName.csproj",
-      "packagesPath": "/Users/nkostop/.nuget/packages/",
-      "outputPath": "/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/",
+      "projectPath": "/Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/ProjectName.csproj",
+      "packagesPath": "/Users/dagnikos/.nuget/packages/",
+      "outputPath": "/Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/nkostop/.nuget/NuGet/NuGet.Config"
+        "/Users/dagnikos/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
-        "https://api.nuget.org/v3/index.json": {},
-        "https://pkgs.dev.azure.com/NBGCICD/_packaging/NBGUploads/nuget/v3/index.json": {}
+        "/usr/local/share/dotnet/library-packs": {},
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net6.0": {
@@ -10382,11 +10382,6 @@
         "warnAsError": [
           "NU1605"
         ]
-      },
-      "restoreAuditProperties": {
-        "enableAudit": "true",
-        "auditLevel": "low",
-        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -10436,8 +10431,7 @@
           "net47",
           "net471",
           "net472",
-          "net48",
-          "net481"
+          "net48"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -10449,7 +10443,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.302/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.129/RuntimeIdentifierGraph.json"
       }
     }
   }
