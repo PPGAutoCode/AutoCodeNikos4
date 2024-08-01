@@ -2,7 +2,7 @@
 #File: FAQCategories.sql
 
 CREATE TABLE FAQCategories (
-    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-    Name NVARCHAR(500) NOT NULL,
-    Description NVARCHAR(500) NULL
+    Id uniqueidentifier NOT NULL PRIMARY KEY,
+    Name nvarchar(500) NOT NULL,
+    Description nvarchar(500) NULL
 );
