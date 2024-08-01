@@ -1,2 +1,1 @@
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/FAQService.cs(61,25): error CS0266: Cannot implicitly convert type 'System.Guid?' to 'System.Guid'. An explicit conversion exists (are you missing a cast?)
-Error: 1 Error(s)
+Error: 0 Error(s)
