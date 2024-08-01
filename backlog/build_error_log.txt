@@ -1,1 +1,5 @@
-Error: 0 Error(s)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Types/BusinessException.cs(3,18): error CS0101: The namespace 'ProjectName.ControllersExceptions' already contains a definition for 'BusinessException'
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Types/BusinessException.cs(8,16): error CS0111: Type 'BusinessException' already defines a member called 'BusinessException' with the same parameter types
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Types/TechnicalException.cs(3,18): error CS0101: The namespace 'ProjectName.ControllersExceptions' already contains a definition for 'TechnicalException'
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Types/TechnicalException.cs(8,16): error CS0111: Type 'TechnicalException' already defines a member called 'TechnicalException' with the same parameter types
+Error: 4 Error(s)
