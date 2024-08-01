@@ -1,6 +1,1 @@
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(26,31): error CS1729: 'Response<string>' does not contain a constructor that takes 1 arguments
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(36,31): error CS1729: 'Response<AppStatus>' does not contain a constructor that takes 1 arguments
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(46,31): error CS1729: 'Response<string>' does not contain a constructor that takes 1 arguments
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(56,31): error CS1729: 'Response<bool>' does not contain a constructor that takes 1 arguments
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(66,31): error CS1729: 'Response<List<AppStatus>>' does not contain a constructor that takes 1 arguments
-Error: 5 Error(s)
+Error: 0 Error(s)
