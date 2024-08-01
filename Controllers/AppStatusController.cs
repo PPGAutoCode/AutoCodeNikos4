@@ -11,40 +11,47 @@ namespace ProjectName.Controllers
     public class AppStatusController : ControllerBase
     {
         private readonly IAppStatusService _appStatusService;
+        private readonly SafeExecutor _safeExecutor;
 
-        public AppStatusController(IAppStatusService appStatusService)
+        public AppStatusController(IAppStatusService appStatusService, SafeExecutor safeExecutor)
         {
             _appStatusService = appStatusService;
+            _safeExecutor = safeExecutor;
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateAppStatus([FromBody] CreateAppStatusDto createAppStatusDto)
+        public async Task<IActionResult> CreateAppStatus([FromBody] Request<CreateAppStatusDto> request)
         {
-            return Ok(await SafeExecutor.ExecuteAsync(() => _appStatusService.CreateAppStatus(createAppStatusDto)));
+            return await _safeExecutor.ExecuteAsync(async () => 
+                Ok(await _appStatusService.CreateAppStatus(request.Payload)));
         }
 
         [HttpPost("get")]
-        public async Task<IActionResult> GetAppStatus([FromBody] AppStatusRequestDto appStatusRequestDto)
+        public async Task<IActionResult> GetAppStatus([FromBody] Request<AppStatusRequestDto> request)
         {
-            return Ok(await SafeExecutor.ExecuteAsync(() => _appStatusService.GetAppStatus(appStatusRequestDto)));
+            return await _safeExecutor.ExecuteAsync(async () => 
+                Ok(await _appStatusService.GetAppStatus(request.Payload)));
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> UpdateAppStatus([FromBody] UpdateAppStatusDto updateAppStatusDto)
+        public async Task<IActionResult> UpdateAppStatus([FromBody] Request<UpdateAppStatusDto> request)
         {
-            return Ok(await SafeExecutor.ExecuteAsync(() => _appStatusService.UpdateAppStatus(updateAppStatusDto)));
+            return await _safeExecutor.ExecuteAsync(async () => 
+                Ok(await _appStatusService.UpdateAppStatus(request.Payload)));
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> DeleteAppStatus([FromBody] DeleteAppStatusDto deleteAppStatusDto)
+        public async Task<IActionResult> DeleteAppStatus([FromBody] Request<DeleteAppStatusDto> request)
         {
-            return Ok(await SafeExecutor.ExecuteAsync(() => _appStatusService.DeleteAppStatus(deleteAppStatusDto)));
+            return await _safeExecutor.ExecuteAsync(async () => 
+                Ok(await _appStatusService.DeleteAppStatus(request.Payload)));
         }
 
         [HttpPost("list")]
-        public async Task<IActionResult> GetListAppStatus([FromBody] ListAppStatusRequestDto listAppStatusRequestDto)
+        public async Task<IActionResult> GetListAppStatus([FromBody] Request<ListAppStatusRequestDto> request)
         {
-            return Ok(await SafeExecutor.ExecuteAsync(() => _appStatusService.GetListAppStatus(listAppStatusRequestDto)));
+            return await _safeExecutor.ExecuteAsync(async () => 
+                Ok(await _appStatusService.GetListAppStatus(request.Payload)));
         }
     }
 }
