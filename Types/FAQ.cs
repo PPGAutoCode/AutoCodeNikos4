@@ -1,4 +1,4 @@
-
+// File: FAQ.cs
 namespace ProjectName.Types
 {
     public class FAQ
