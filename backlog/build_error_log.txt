@@ -1,1 +1,11 @@
-Error: 0 Error(s)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AllowedGrantTypeController.cs(26,31): error CS1729: 'Response<string>' does not contain a constructor that takes 1 arguments
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AllowedGrantTypeController.cs(36,31): error CS1729: 'Response<AllowedGrantType>' does not contain a constructor that takes 1 arguments
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AllowedGrantTypeController.cs(46,31): error CS1729: 'Response<string>' does not contain a constructor that takes 1 arguments
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AllowedGrantTypeController.cs(56,31): error CS1729: 'Response<bool>' does not contain a constructor that takes 1 arguments
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AllowedGrantTypeController.cs(66,31): error CS1729: 'Response<List<AllowedGrantType>>' does not contain a constructor that takes 1 arguments
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(33,17): error CS0117: 'AllowedGrantType' does not contain a definition for 'Version'
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(34,17): error CS0117: 'AllowedGrantType' does not contain a definition for 'Created'
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(35,17): error CS0117: 'AllowedGrantType' does not contain a definition for 'Changed'
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(91,31): error CS1061: 'AllowedGrantType' does not contain a definition for 'Version' and no accessible extension method 'Version' accepting a first argument of type 'AllowedGrantType' could be found (are you missing a using directive or an assembly reference?)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AllowedGrantTypeService.cs(92,31): error CS1061: 'AllowedGrantType' does not contain a definition for 'Changed' and no accessible extension method 'Changed' accepting a first argument of type 'AllowedGrantType' could be found (are you missing a using directive or an assembly reference?)
+Error: 10 Error(s)
