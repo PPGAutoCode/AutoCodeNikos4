@@ -341,3 +341,16 @@
 /Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ref/ProjectName.dll
 /Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.pdb
 /Users/dagnikos/Projects/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.genruntimeconfig.cache
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.csproj.AssemblyReference.cache
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/MvcTestingAppManifest.json
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.GeneratedMSBuildEditorConfig.editorconfig
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.AssemblyInfoInputs.cache
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.AssemblyInfo.cs
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.csproj.CoreCompileInputs.cache
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.MvcApplicationPartsAssemblyInfo.cs
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.MvcApplicationPartsAssemblyInfo.cache
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.RazorAssemblyInfo.cache
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.RazorAssemblyInfo.cs
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.sourcelink.json
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.dll
+/Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/obj/Debug/net6.0/ProjectName.pdb

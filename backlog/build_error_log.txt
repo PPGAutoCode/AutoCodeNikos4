@@ -1,0 +1,8 @@
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(13,26): error CS0246: The type or namespace name 'IAppStatusService' could not be found (are you missing a using directive or an assembly reference?)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(15,36): error CS0246: The type or namespace name 'IAppStatusService' could not be found (are you missing a using directive or an assembly reference?)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(21,69): error CS0246: The type or namespace name 'CreateAppStatusDto' could not be found (are you missing a using directive or an assembly reference?)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(27,66): error CS0246: The type or namespace name 'AppStatusRequestDto' could not be found (are you missing a using directive or an assembly reference?)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(33,69): error CS0246: The type or namespace name 'UpdateAppStatusDto' could not be found (are you missing a using directive or an assembly reference?)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(39,69): error CS0246: The type or namespace name 'DeleteAppStatusDto' could not be found (are you missing a using directive or an assembly reference?)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(45,70): error CS0246: The type or namespace name 'ListAppStatusRequestDto' could not be found (are you missing a using directive or an assembly reference?)
+Error: 7 Error(s)
