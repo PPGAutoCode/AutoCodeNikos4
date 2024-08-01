@@ -16,6 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAppStatusService, AppStatusService>();
+builder.Services.AddScoped<IAllowedGrantTypeService, AllowedGrantTypeService>();
 builder.Services.AddScoped<IFAQService, FAQService>();
 builder.Services.AddScoped<IProductTagService, ProductTagService>();
 builder.Services.AddScoped<ISupportTicketStateService, SupportTicketStateService>();
