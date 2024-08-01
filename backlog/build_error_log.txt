@@ -1,3 +1,2 @@
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/FAQService.cs(116,33): error CS0029: Cannot implicitly convert type 'System.Collections.Generic.List<System.Guid?>' to 'System.Collections.Generic.List<System.Guid>'
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/FAQService.cs(267,37): error CS0029: Cannot implicitly convert type 'System.Collections.Generic.List<System.Guid?>' to 'System.Collections.Generic.List<System.Guid>'
-Error: 2 Error(s)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Implementations/AuthorService.cs(9,30): error CS0535: 'AuthorService' does not implement interface member 'IAuthorService.GetListAuthor(ListAuthorRequestDto)'
+Error: 1 Error(s)
