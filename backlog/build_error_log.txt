@@ -1,3 +1,6 @@
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(14,39): error CS0723: Cannot declare a variable of static type 'SafeExecutor'
-Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(16,72): error CS0721: 'SafeExecutor': static types cannot be used as parameters
-Error: 2 Error(s)
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(26,31): error CS1729: 'Response<string>' does not contain a constructor that takes 1 arguments
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(36,31): error CS1729: 'Response<AppStatus>' does not contain a constructor that takes 1 arguments
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(46,31): error CS1729: 'Response<string>' does not contain a constructor that takes 1 arguments
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(56,31): error CS1729: 'Response<bool>' does not contain a constructor that takes 1 arguments
+Error: /Users/nkostop/Sites/NBG/AutoCode/tempcode/ProjectName/Controllers/AppStatusController.cs(66,31): error CS1729: 'Response<List<AppStatus>>' does not contain a constructor that takes 1 arguments
+Error: 5 Error(s)
