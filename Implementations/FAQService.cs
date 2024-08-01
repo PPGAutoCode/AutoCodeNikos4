@@ -24,8 +24,7 @@ namespace ProjectName.Services
         public async Task<string> CreateFAQ(CreateFAQDto request)
         {
             // Validation Logic
-            if (string.IsNullOrEmpty(request.Question) || string.IsNullOrEmpty(request.Answer) ||
-                string.IsNullOrEmpty(request.Langcode) || request.FaqOrder == null)
+            if (string.IsNullOrEmpty(request.Question) || string.IsNullOrEmpty(request.Answer) || string.IsNullOrEmpty(request.Langcode) || request.Status == null || request.FaqOrder == null)
             {
                 throw new BusinessException("DP-422", "Client Error");
             }
@@ -36,8 +35,8 @@ namespace ProjectName.Services
                 Question = request.Question,
                 Answer = request.Answer,
                 Langcode = request.Langcode,
-                Status = request.Status,
-                FaqOrder = request.FaqOrder,
+                Status = request.Status.Value,
+                FaqOrder = request.FaqOrder.Value,
                 Created = DateTime.UtcNow,
                 Changed = DateTime.UtcNow
             };
@@ -49,7 +48,7 @@ namespace ProjectName.Services
                 var category = await _faqCategoryService.GetFAQCategory(categoryRequestDto);
                 if (category == null)
                 {
-                    throw new TechnicalException("DP-404", "Technical Error");
+                    throw new BusinessException("DP-404", "Technical Error");
                 }
                 fAQFAQCategories.Add(new FAQFAQCategory
                 {
@@ -63,8 +62,12 @@ namespace ProjectName.Services
             {
                 try
                 {
-                    await _dbConnection.ExecuteAsync("INSERT INTO FAQs (Id, Question, Answer, Langcode, Status, FaqOrder, Created, Changed) VALUES (@Id, @Question, @Answer, @Langcode, @Status, @FaqOrder, @Created, @Changed)", faq, transaction);
-                    await _dbConnection.ExecuteAsync("INSERT INTO FAQFAQCategories (Id, FAQId, FAQCategoryId) VALUES (@Id, @FAQId, @FAQCategoryId)", fAQFAQCategories, transaction);
+                    var sql = "INSERT INTO FAQs (Id, Question, Answer, Langcode, Status, FaqOrder, Created, Changed) VALUES (@Id, @Question, @Answer, @Langcode, @Status, @FaqOrder, @Created, @Changed)";
+                    await _dbConnection.ExecuteAsync(sql, faq, transaction);
+
+                    var sqlCategories = "INSERT INTO FAQFAQCategories (Id, FAQId, FAQCategoryId) VALUES (@Id, @FAQId, @FAQCategoryId)";
+                    await _dbConnection.ExecuteAsync(sqlCategories, fAQFAQCategories, transaction);
+
                     transaction.Commit();
                 }
                 catch (Exception)
@@ -84,51 +87,54 @@ namespace ProjectName.Services
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            var faq = await _dbConnection.QuerySingleOrDefaultAsync<FAQ>("SELECT * FROM FAQs WHERE Id = @Id", new { Id = request.Id });
+            var sql = "SELECT * FROM FAQs WHERE Id = @Id";
+            var faq = await _dbConnection.QuerySingleOrDefaultAsync<FAQ>(sql, new { request.Id });
+
             if (faq == null)
             {
-                throw new TechnicalException("DP-404", "Technical Error");
+                throw new BusinessException("DP-404", "Technical Error");
             }
 
             var categoryIds = await _dbConnection.QueryAsync<Guid>("SELECT FAQCategoryId FROM FAQFAQCategories WHERE FAQId = @FAQId", new { FAQId = faq.Id });
-            var categories = new List<FAQCategory>();
+
+            var faqCategories = new List<FAQCategory>();
             foreach (var categoryId in categoryIds)
             {
                 var categoryRequestDto = new FAQCategoryRequestDto { Id = categoryId };
                 var category = await _faqCategoryService.GetFAQCategory(categoryRequestDto);
                 if (category == null)
                 {
-                    throw new TechnicalException("DP-404", "Technical Error");
+                    throw new BusinessException("DP-404", "Technical Error");
                 }
-                categories.Add(category);
+                faqCategories.Add(category);
             }
 
-            faq.FAQCategories = categories.Where(c => c != null).ToList();
+            faq.FAQCategories = faqCategories.Select(c => c.Id).ToList();
             return faq;
         }
 
         public async Task<string> UpdateFAQ(UpdateFAQDto request)
         {
-            if (request.Id == Guid.Empty || string.IsNullOrEmpty(request.Question) || string.IsNullOrEmpty(request.Answer) ||
-                string.IsNullOrEmpty(request.Langcode) || request.FaqOrder == null)
+            // Validation Logic
+            if (request.Id == Guid.Empty || string.IsNullOrEmpty(request.Question) || string.IsNullOrEmpty(request.Answer) || string.IsNullOrEmpty(request.Langcode) || request.Status == null || request.FaqOrder == null)
             {
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            var existingFaq = await _dbConnection.QuerySingleOrDefaultAsync<FAQ>("SELECT * FROM FAQs WHERE Id = @Id", new { Id = request.Id });
+            var existingFaq = await _dbConnection.QuerySingleOrDefaultAsync<FAQ>("SELECT * FROM FAQs WHERE Id = @Id", new { request.Id });
             if (existingFaq == null)
             {
-                throw new TechnicalException("DP-404", "Technical Error");
+                throw new BusinessException("DP-404", "Technical Error");
             }
 
             existingFaq.Question = request.Question;
             existingFaq.Answer = request.Answer;
             existingFaq.Langcode = request.Langcode;
-            existingFaq.Status = request.Status;
-            existingFaq.FaqOrder = request.FaqOrder;
+            existingFaq.Status = request.Status.Value;
+            existingFaq.FaqOrder = request.FaqOrder.Value;
             existingFaq.Changed = DateTime.UtcNow;
 
-            var existingCategoryIds = await _dbConnection.QueryAsync<Guid>("SELECT FAQCategoryId FROM FAQFAQCategories WHERE FAQId = @FAQId", new { FAQId = request.Id });
+            var existingCategoryIds = await _dbConnection.QueryAsync<Guid>("SELECT FAQCategoryId FROM FAQFAQCategories WHERE FAQId = @FAQId", new { FAQId = existingFaq.Id });
             var categoriesToRemove = existingCategoryIds.Except(request.FAQCategories).ToList();
             var categoriesToAdd = request.FAQCategories.Except(existingCategoryIds).ToList();
 
@@ -140,7 +146,7 @@ namespace ProjectName.Services
 
                     if (categoriesToRemove.Any())
                     {
-                        await _dbConnection.ExecuteAsync("DELETE FROM FAQFAQCategories WHERE FAQId = @FAQId AND FAQCategoryId IN @FAQCategoryIds", new { FAQId = request.Id, FAQCategoryIds = categoriesToRemove }, transaction);
+                        await _dbConnection.ExecuteAsync("DELETE FROM FAQFAQCategories WHERE FAQId = @FAQId AND FAQCategoryId IN @CategoriesToRemove", new { FAQId = existingFaq.Id, CategoriesToRemove = categoriesToRemove }, transaction);
                     }
 
                     foreach (var categoryId in categoriesToAdd)
@@ -149,9 +155,9 @@ namespace ProjectName.Services
                         var category = await _faqCategoryService.GetFAQCategory(categoryRequestDto);
                         if (category == null)
                         {
-                            throw new TechnicalException("DP-404", "Technical Error");
+                            throw new BusinessException("DP-404", "Technical Error");
                         }
-                        await _dbConnection.ExecuteAsync("INSERT INTO FAQFAQCategories (Id, FAQId, FAQCategoryId) VALUES (@Id, @FAQId, @FAQCategoryId)", new { Id = Guid.NewGuid(), FAQId = request.Id, FAQCategoryId = categoryId }, transaction);
+                        await _dbConnection.ExecuteAsync("INSERT INTO FAQFAQCategories (Id, FAQId, FAQCategoryId) VALUES (@Id, @FAQId, @FAQCategoryId)", new { Id = Guid.NewGuid(), FAQId = existingFaq.Id, FAQCategoryId = categoryId }, transaction);
                     }
 
                     transaction.Commit();
@@ -173,18 +179,19 @@ namespace ProjectName.Services
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            var existingFaq = await _dbConnection.QuerySingleOrDefaultAsync<FAQ>("SELECT * FROM FAQs WHERE Id = @Id", new { Id = request.Id });
+            var existingFaq = await _dbConnection.QuerySingleOrDefaultAsync<FAQ>("SELECT * FROM FAQs WHERE Id = @Id", new { request.Id });
             if (existingFaq == null)
             {
-                throw new TechnicalException("DP-404", "Technical Error");
+                throw new BusinessException("DP-404", "Technical Error");
             }
 
             using (var transaction = _dbConnection.BeginTransaction())
             {
                 try
                 {
-                    await _dbConnection.ExecuteAsync("DELETE FROM FAQFAQCategories WHERE FAQId = @FAQId", new { FAQId = request.Id }, transaction);
-                    await _dbConnection.ExecuteAsync("DELETE FROM FAQs WHERE Id = @Id", new { Id = request.Id }, transaction);
+                    await _dbConnection.ExecuteAsync("DELETE FROM FAQFAQCategories WHERE FAQId = @FAQId", new { FAQId = existingFaq.Id }, transaction);
+                    await _dbConnection.ExecuteAsync("DELETE FROM FAQs WHERE Id = @Id", new { existingFaq.Id }, transaction);
+
                     transaction.Commit();
                 }
                 catch (Exception)
@@ -201,40 +208,41 @@ namespace ProjectName.Services
         {
             if (request.PageLimit == 0 || request.PageOffset == 0)
             {
-                throw new TechnicalException("DP-422", "Client Error");
+                throw new BusinessException("DP-422", "Client Error");
             }
 
-            var query = "SELECT * FROM FAQs";
+            var sql = "SELECT * FROM FAQs";
             if (!string.IsNullOrEmpty(request.SortField) && !string.IsNullOrEmpty(request.SortOrder))
             {
-                query += $" ORDER BY {request.SortField} {request.SortOrder}";
+                sql += $" ORDER BY {request.SortField} {request.SortOrder}";
             }
-            query += " OFFSET @PageOffset ROWS FETCH NEXT @PageLimit ROWS ONLY";
+            sql += " OFFSET @PageOffset ROWS FETCH NEXT @PageLimit ROWS ONLY";
 
-            var faqs = await _dbConnection.QueryAsync<FAQ>(query, new { PageOffset = request.PageOffset, PageLimit = request.PageLimit });
+            var faqs = await _dbConnection.QueryAsync<FAQ>(sql, new { request.PageOffset, request.PageLimit });
 
             if (!faqs.Any())
             {
-                throw new TechnicalException("DP-400", "Technical Error");
+                throw new BusinessException("DP-400", "Technical Error");
             }
 
             var faqIds = faqs.Select(f => f.Id).ToList();
             var categoryIds = await _dbConnection.QueryAsync<Guid>("SELECT FAQCategoryId FROM FAQFAQCategories WHERE FAQId IN @FAQIds", new { FAQIds = faqIds });
-            var categories = new List<FAQCategory>();
+
+            var faqCategories = new List<FAQCategory>();
             foreach (var categoryId in categoryIds)
             {
                 var categoryRequestDto = new FAQCategoryRequestDto { Id = categoryId };
                 var category = await _faqCategoryService.GetFAQCategory(categoryRequestDto);
                 if (category == null)
                 {
-                    throw new TechnicalException("DP-404", "Technical Error");
+                    throw new BusinessException("DP-404", "Technical Error");
                 }
-                categories.Add(category);
+                faqCategories.Add(category);
             }
 
             foreach (var faq in faqs)
             {
-                faq.FAQCategories = categories.Where(c => c.Id != Guid.Empty).ToList();
+                faq.FAQCategories = faqCategories.Where(c => c.Id == faq.Id).Select(c => c.Id).ToList();
             }
 
             return faqs.ToList();
