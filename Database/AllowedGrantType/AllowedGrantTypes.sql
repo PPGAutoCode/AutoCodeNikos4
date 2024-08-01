@@ -1,6 +1,4 @@
 
-#Path: AllowedGrantType
-#File: AllowedGrantTypes.sql
 
 CREATE TABLE AllowedGrantTypes (
     Id uniqueidentifier PRIMARY KEY,
