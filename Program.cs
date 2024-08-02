@@ -16,6 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAppStatusService, AppStatusService>();
+builder.Services.AddScoped<IGettingStartedCompletedConditionService, GettingStartedCompletedConditionService>();
 builder.Services.AddScoped<IGoLiveDeveloperTypeService, GoLiveDeveloperTypeService>();
 builder.Services.AddScoped<IUserTypeService, UserTypeService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
