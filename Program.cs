@@ -15,6 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAppStatusService, AppStatusService>();
+builder.Services.AddScoped<ISeverityService, SeverityService>();
 builder.Services.AddScoped<IProductDomainService, ProductDomainService>();
 builder.Services.AddScoped<ISupportTicketPriorityService, SupportTicketPriorityService>();
 builder.Services.AddScoped<IGettingStartedCompletedConditionService, GettingStartedCompletedConditionService>();
