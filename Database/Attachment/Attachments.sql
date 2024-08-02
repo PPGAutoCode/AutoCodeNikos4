@@ -1,10 +1,10 @@
-#Path: Attachment
-#File: Attachments.sql
 CREATE TABLE Attachments (
     Id uniqueidentifier PRIMARY KEY,
-    FileName nvarchar(100) NOT NULL,
-    File nvarchar(max) NOT NULL,
-    Timestamp datetime NOT NULL,
-    FileUrl varbinary(max),
-    FilePath nvarchar(500)
+    FileName nvarchar(100),
+    FileData nvarchar(max) NOT NULL,
+    Version int,
+    Created datetime2(7),
+    Changed datetime2(7),
+    CreatorId uniqueidentifier,
+    ChangedUser uniqueidentifier
 );

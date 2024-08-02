@@ -6,7 +6,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.Data;
 using System.Data.SqlClient;
-using ProjectName.Implementation;
 using ProjectName.Interfaces;
 using ProjectName.Services;
 
@@ -33,7 +32,6 @@ builder.Services.AddScoped<IFAQCategoryService, FAQCategoryService>();
 builder.Services.AddScoped<IAppEnvironmentService, AppEnvironmentService>();
 builder.Services.AddScoped<IApiTagService, ApiTagService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
-builder.Services.AddScoped<IAPIEndpointService, APIEndpointService>();
 builder.Services.AddScoped<IBlogTagService, BlogTagService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IBlogCategoryService, BlogCategoryService>();
