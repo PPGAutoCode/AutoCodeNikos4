@@ -1,11 +1,13 @@
-#File: FAQs.sql
 CREATE TABLE FAQs (
-    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-    Question NVARCHAR(500) NOT NULL,
-    Answer NVARCHAR(MAX) NOT NULL,
-    Langcode NVARCHAR(4) NOT NULL,
-    Status BIT NULL,
-    Created DATETIME2(7) NOT NULL,
-    Changed DATETIME2(7) NOT NULL,
-    FaqOrder INT NULL
+    Id uniqueidentifier PRIMARY KEY,
+    Question nvarchar(500) NOT NULL,
+    Answer nvarchar(max) NOT NULL,
+    Langcode nvarchar(4) NOT NULL CHECK (Langcode IN ('el', 'en')),
+    Status bit NULL,
+    FaqOrder int NULL,
+    Version int NULL,
+    Created datetime2(7) NULL,
+    Changed datetime2(7) NULL,
+    CreatorId uniqueidentifier NULL,
+    ChangedUser uniqueidentifier NULL
 );

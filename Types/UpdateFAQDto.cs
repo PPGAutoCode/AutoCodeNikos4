@@ -10,6 +10,5 @@ namespace ProjectName.Types
         public string? Langcode { get; set; }
         public bool? Status { get; set; }
         public int? FaqOrder { get; set; }
-        public DateTime? Changed { get; set; }
     }
 }

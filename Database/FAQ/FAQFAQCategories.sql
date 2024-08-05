@@ -1,6 +1,5 @@
-#File: FAQFAQCategories.sql
 CREATE TABLE FAQFAQCategories (
-    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-    FAQId UNIQUEIDENTIFIER NOT NULL,
-    FAQCategoryId UNIQUEIDENTIFIER NOT NULL
+    Id uniqueidentifier PRIMARY KEY,
+    FAQId uniqueidentifier NOT NULL,
+    FAQCategoryId uniqueidentifier NOT NULL
 );
