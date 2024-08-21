@@ -32,7 +32,7 @@ namespace ProjectName.Interfaces
         Task<string> UpdateAppEnvironment(UpdateAppEnvironmentDto updateAppEnvironmentDto);
 
         /// <summary>
-        /// Deletes an application environment based on the provided request data.
+        /// Deletes an application environment.
         /// </summary>
         /// <param name="deleteAppEnvironmentDto">Data transfer object for deleting an application environment.</param>
         /// <returns>A boolean indicating the success of the deletion operation.</returns>
@@ -42,7 +42,7 @@ namespace ProjectName.Interfaces
         /// Retrieves a list of application environments based on the provided request data.
         /// </summary>
         /// <param name="listAppEnvironmentRequestDto">Data transfer object for requesting a list of application environments.</param>
-        /// <returns>A list of AppEnvironment objects representing the requested environments.</returns>
+        /// <returns>A list of AppEnvironment objects.</returns>
         Task<List<AppEnvironment>> GetListAppEnvironment(ListAppEnvironmentRequestDto listAppEnvironmentRequestDto);
     }
 }

@@ -1,11 +1,11 @@
-
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using ProjectName.Interfaces;
 using ProjectName.Types;
+using ProjectName.Interfaces;
 using ProjectName.ControllersExceptions;
 
 namespace ProjectName.Services
@@ -33,23 +33,26 @@ namespace ProjectName.Services
                 Version = 1,
                 Created = DateTime.UtcNow,
                 Changed = DateTime.UtcNow,
-                CreatorId = request.CreatorId,
-                ChangedUser = request.CreatorId
+                CreatorId = Guid.NewGuid(), // Assuming a creator ID is generated or fetched
+                ChangedUser = Guid.NewGuid() // Assuming a changed user ID is generated or fetched
             };
 
-            const string sql = @"
-                INSERT INTO AppEnvironments (Id, Name, Version, Created, Changed, CreatorId, ChangedUser)
-                VALUES (@Id, @Name, @Version, @Created, @Changed, @CreatorId, @ChangedUser);
-            ";
+            const string sql = @"INSERT INTO AppEnvironments (Id, Name, Version, Created, Changed, CreatorId, ChangedUser) 
+                                 VALUES (@Id, @Name, @Version, @Created, @Changed, @CreatorId, @ChangedUser)";
 
-            try
+            using (var transaction = _dbConnection.BeginTransaction())
             {
-                await _dbConnection.ExecuteAsync(sql, appEnvironment);
-                return appEnvironment.Id.ToString();
-            }
-            catch (Exception)
-            {
-                throw new TechnicalException("DP-500", "Technical Error");
+                try
+                {
+                    await _dbConnection.ExecuteAsync(sql, appEnvironment, transaction);
+                    transaction.Commit();
+                    return appEnvironment.Id.ToString();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
+                }
             }
         }
 
@@ -60,23 +63,15 @@ namespace ProjectName.Services
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            const string sql = @"
-                SELECT * FROM AppEnvironments WHERE Id = @Id;
-            ";
+            const string sql = "SELECT * FROM AppEnvironments WHERE Id = @Id";
+            var result = await _dbConnection.QuerySingleOrDefaultAsync<AppEnvironment>(sql, new { request.Id });
 
-            try
+            if (result == null)
             {
-                var appEnvironment = await _dbConnection.QuerySingleOrDefaultAsync<AppEnvironment>(sql, new { request.Id });
-                if (appEnvironment == null)
-                {
-                    throw new TechnicalException("DP-404", "Technical Error");
-                }
-                return appEnvironment;
+                throw new TechnicalException("DP-404", "Technical Error");
             }
-            catch (Exception)
-            {
-                throw new TechnicalException("DP-500", "Technical Error");
-            }
+
+            return result;
         }
 
         public async Task<string> UpdateAppEnvironment(UpdateAppEnvironmentDto request)
@@ -86,35 +81,35 @@ namespace ProjectName.Services
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            const string selectSql = @"
-                SELECT * FROM AppEnvironments WHERE Id = @Id;
-            ";
+            const string selectSql = "SELECT * FROM AppEnvironments WHERE Id = @Id";
+            var appEnvironment = await _dbConnection.QuerySingleOrDefaultAsync<AppEnvironment>(selectSql, new { request.Id });
 
-            var existingAppEnvironment = await _dbConnection.QuerySingleOrDefaultAsync<AppEnvironment>(selectSql, new { request.Id });
-            if (existingAppEnvironment == null)
+            if (appEnvironment == null)
             {
                 throw new TechnicalException("DP-404", "Technical Error");
             }
 
-            existingAppEnvironment.Name = request.Name;
-            existingAppEnvironment.Version += 1;
-            existingAppEnvironment.Changed = DateTime.UtcNow;
-            existingAppEnvironment.ChangedUser = request.ChangedUser;
+            appEnvironment.Name = request.Name;
+            appEnvironment.Version += 1;
+            appEnvironment.Changed = DateTime.UtcNow;
 
-            const string updateSql = @"
-                UPDATE AppEnvironments
-                SET Name = @Name, Version = @Version, Changed = @Changed, ChangedUser = @ChangedUser
-                WHERE Id = @Id;
-            ";
+            const string updateSql = @"UPDATE AppEnvironments 
+                                       SET Name = @Name, Version = @Version, Changed = @Changed 
+                                       WHERE Id = @Id";
 
-            try
+            using (var transaction = _dbConnection.BeginTransaction())
             {
-                await _dbConnection.ExecuteAsync(updateSql, existingAppEnvironment);
-                return existingAppEnvironment.Id.ToString();
-            }
-            catch (Exception)
-            {
-                throw new TechnicalException("DP-500", "Technical Error");
+                try
+                {
+                    await _dbConnection.ExecuteAsync(updateSql, appEnvironment, transaction);
+                    transaction.Commit();
+                    return appEnvironment.Id.ToString();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
+                }
             }
         }
 
@@ -125,28 +120,29 @@ namespace ProjectName.Services
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            const string selectSql = @"
-                SELECT * FROM AppEnvironments WHERE Id = @Id;
-            ";
+            const string selectSql = "SELECT * FROM AppEnvironments WHERE Id = @Id";
+            var appEnvironment = await _dbConnection.QuerySingleOrDefaultAsync<AppEnvironment>(selectSql, new { request.Id });
 
-            var existingAppEnvironment = await _dbConnection.QuerySingleOrDefaultAsync<AppEnvironment>(selectSql, new { request.Id });
-            if (existingAppEnvironment == null)
+            if (appEnvironment == null)
             {
                 throw new TechnicalException("DP-404", "Technical Error");
             }
 
-            const string deleteSql = @"
-                DELETE FROM AppEnvironments WHERE Id = @Id;
-            ";
+            const string deleteSql = "DELETE FROM AppEnvironments WHERE Id = @Id";
 
-            try
+            using (var transaction = _dbConnection.BeginTransaction())
             {
-                await _dbConnection.ExecuteAsync(deleteSql, new { request.Id });
-                return true;
-            }
-            catch (Exception)
-            {
-                throw new TechnicalException("DP-500", "Technical Error");
+                try
+                {
+                    await _dbConnection.ExecuteAsync(deleteSql, new { request.Id }, transaction);
+                    transaction.Commit();
+                    return true;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
+                }
             }
         }
 
@@ -157,20 +153,21 @@ namespace ProjectName.Services
                 throw new BusinessException("DP-422", "Client Error");
             }
 
-            var sql = @"
-                SELECT * FROM AppEnvironments
-                ORDER BY {0} {1}
-                OFFSET @PageOffset ROWS FETCH NEXT @PageLimit ROWS ONLY;
-            ";
+            if (string.IsNullOrEmpty(request.SortField) || string.IsNullOrEmpty(request.SortOrder))
+            {
+                request.SortField = "Id";
+                request.SortOrder = "asc";
+            }
 
-            sql = string.Format(sql, request.SortField ?? "Id", request.SortOrder ?? "ASC");
+            var sql = $"SELECT * FROM AppEnvironments ORDER BY {request.SortField} {request.SortOrder} " +
+                      $"OFFSET {request.PageOffset} ROWS FETCH NEXT {request.PageLimit} ROWS ONLY";
 
             try
             {
-                var appEnvironments = await _dbConnection.QueryAsync<AppEnvironment>(sql, new { request.PageOffset, request.PageLimit });
-                return appEnvironments.AsList();
+                var results = await _dbConnection.QueryAsync<AppEnvironment>(sql);
+                return results.ToList();
             }
-            catch (Exception)
+            catch
             {
                 throw new TechnicalException("DP-500", "Technical Error");
             }
