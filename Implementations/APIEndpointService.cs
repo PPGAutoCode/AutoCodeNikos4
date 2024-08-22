@@ -401,85 +401,98 @@ namespace ProjectName.Services
         return true;
     }
 
-        public async Task<List<APIEndpointDto>> GetListAPIEndpoint(ListAPIEndpointRequestDto request)
+        public async Task<List<APIEndpointDto>> GetListAPIEndpoint(ListAPIEndpointRequestDto requestDto)
+    {
+        // Step 1: Validate the requestDto
+        if (requestDto.PageLimit <= 0 || requestDto.PageOffset < 0)
         {
-            if (request.PageLimit <= 0 || request.PageOffset < 0)
-            {
-                throw new BusinessException("DP-422", "Invalid pagination parameters");
-            }
-
-            request.SortField = string.IsNullOrEmpty(request.SortField) ? "Id" : request.SortField;
-            request.SortOrder = string.IsNullOrEmpty(request.SortOrder) ? "asc" : request.SortOrder;
-
-            var query =
-                $"SELECT * FROM APIEndpoints ORDER BY {request.SortField} {request.SortOrder} OFFSET {request.PageOffset} ROWS FETCH NEXT {request.PageLimit} ROWS ONLY";
-            var apiEndpoints = await _dbConnection.QueryAsync<APIEndpoint>(query);
-
-            var apiEndpointDtos = new List<APIEndpointDto>();
-
-            foreach (var apiEndpoint in apiEndpoints)
-            {
-                var apiEndpointDto = new APIEndpointDto
-                {
-                    Id = apiEndpoint.Id,
-                    ApiName = apiEndpoint.ApiName,
-                    ApiScope = apiEndpoint.ApiScope,
-                    ApiScopeProduction = apiEndpoint.ApiScopeProduction,
-                    Deprecated = apiEndpoint.Deprecated,
-                    Description = apiEndpoint.Description,
-                    EndpointUrls = apiEndpoint.EndpointUrls,
-                    AppEnvironment = apiEndpoint.AppEnvironment,
-                    ApiVersion = apiEndpoint.ApiVersion,
-                    Langcode = apiEndpoint.Langcode,
-                    Sticky = apiEndpoint.Sticky,
-                    Promote = apiEndpoint.Promote,
-                    UrlAlias = apiEndpoint.UrlAlias,
-                    Published = apiEndpoint.Published,
-                    Version = apiEndpoint.Version,
-                    Created = apiEndpoint.Created,
-                    Changed = apiEndpoint.Changed,
-                    CreatorId = apiEndpoint.CreatorId,
-                    ChangedUser = apiEndpoint.ChangedUser
-                };
-
-                if (apiEndpoint.Documentation != Guid.Empty)
-                {
-                    apiEndpointDto.Documentation = await _attachmentService.GetAttachment(new AttachmentRequestDto
-                        { Id = apiEndpoint.Documentation });
-                }
-
-                if (apiEndpoint.Swagger != Guid.Empty)
-                {
-                    apiEndpointDto.Swagger = await _attachmentService.GetAttachment(new AttachmentRequestDto
-                        { Id = apiEndpoint.Swagger });
-                }
-
-                if (apiEndpoint.Tour != Guid.Empty)
-                {
-                    apiEndpointDto.Tour =
-                        await _attachmentService.GetAttachment(new AttachmentRequestDto { Id = apiEndpoint.Tour });
-                }
-
-                var apiTagIds = await _dbConnection.QueryAsync<Guid>(
-                    "SELECT ApiTagId FROM APIEndpointTags WHERE APIEndpointId = @Id", new { Id = apiEndpoint.Id });
-                if (apiTagIds.Any())
-                {
-                    apiEndpointDto.ApiTags = new List<ApiTag>();
-                    foreach (var apiTagId in apiTagIds)
-                    {
-                        var apiTag = await _apiTagService.GetApiTag(new ApiTagRequestDto { Id = apiTagId });
-                        if (apiTag != null)
-                        {
-                            apiEndpointDto.ApiTags.Add(apiTag);
-                        }
-                    }
-                }
-
-                apiEndpointDtos.Add(apiEndpointDto);
-            }
-
-            return apiEndpointDtos;
+            throw new BusinessException("DP-422", "Client Error");
         }
+
+        // Step 2: Set default sorting if not provided
+        if (string.IsNullOrEmpty(requestDto.SortField))
+        {
+            requestDto.SortField = "Id";
+        }
+        if (string.IsNullOrEmpty(requestDto.SortOrder))
+        {
+            requestDto.SortOrder = "asc";
+        }
+
+        // Step 3: Fetch the list of ApiEndpoints from the database
+        string query = $@"SELECT * FROM ApiEndpoints ORDER BY {requestDto.SortField} {requestDto.SortOrder} 
+                          OFFSET {requestDto.PageOffset} ROWS FETCH NEXT {requestDto.PageLimit} ROWS ONLY";
+
+        var apiEndpoints = await _dbConnection.QueryAsync<APIEndpoint>(query);
+
+        var apiEndpointDtos = new List<APIEndpointDto>();
+
+        foreach (var apiEndpoint in apiEndpoints)
+        {
+            var apiEndpointDto = new APIEndpointDto
+            {
+                Id = apiEndpoint.Id,
+                ApiName = apiEndpoint.ApiName,
+                ApiScope = apiEndpoint.ApiScope,
+                ApiScopeProduction = apiEndpoint.ApiScopeProduction,
+                Deprecated = apiEndpoint.Deprecated,
+                Description = apiEndpoint.Description,
+                EndpointUrls = apiEndpoint.EndpointUrls,
+                AppEnvironment = apiEndpoint.AppEnvironment,
+                ApiVersion = apiEndpoint.ApiVersion,
+                Langcode = apiEndpoint.Langcode,
+                Sticky = apiEndpoint.Sticky,
+                Promote = apiEndpoint.Promote,
+                UrlAlias = apiEndpoint.UrlAlias,
+                Published = apiEndpoint.Published,
+                Version = apiEndpoint.Version,
+                Created = apiEndpoint.Created,
+                Changed = apiEndpoint.Changed,
+                CreatorId = apiEndpoint.CreatorId,
+                ChangedUser = apiEndpoint.ChangedUser
+            };
+
+            // Step 4: Fetch and map attachments
+            if (apiEndpoint.Documentation != null)
+            {
+                var attachmentRequestDto = new AttachmentRequestDto { Id = apiEndpoint.Documentation };
+                var documentation = await _attachmentService.GetAttachment(attachmentRequestDto);
+                apiEndpointDto.Documentation = documentation;
+            }
+            if (apiEndpoint.Swagger != null)
+            {
+                var attachmentRequestDto = new AttachmentRequestDto { Id = apiEndpoint.Swagger };
+                var swagger = await _attachmentService.GetAttachment(attachmentRequestDto);
+                apiEndpointDto.Swagger = swagger;
+            }
+            if (apiEndpoint.Tour != null)
+            {
+                var attachmentRequestDto = new AttachmentRequestDto { Id = apiEndpoint.Tour };
+                var tour = await _attachmentService.GetAttachment(attachmentRequestDto);
+                apiEndpointDto.Tour = tour;
+            }
+
+            // Step 5: Fetch and map related ApiTags
+            string tagQuery = $"SELECT ApiTagId FROM ApiEndpointTags WHERE ApiEndpointId = '{apiEndpoint.Id}'";
+            var apiTagIds = await _dbConnection.QueryAsync<Guid>(tagQuery);
+
+            if (apiTagIds.Any())
+            {
+                var apiTags = new List<ApiTag>();
+                foreach (var apiTagId in apiTagIds)
+                {
+                    var apiTagRequestDto = new ApiTagRequestDto { Id = apiTagId };
+                    var apiTag = await _apiTagService.GetApiTag(apiTagRequestDto);
+                    apiTags.Add(apiTag);
+                }
+                apiEndpointDto.ApiTags = apiTags;
+            }
+
+            apiEndpointDtos.Add(apiEndpointDto);
+        }
+
+        return apiEndpointDtos;
+    }
     }
 }
 
