@@ -15,6 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAppStatusService, AppStatusService>();
+builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<IAPIEndpointService, APIEndpointService>();
 builder.Services.AddScoped<IFAQService, FAQService>();
 builder.Services.AddScoped<ISeverityService, SeverityService>();
