@@ -7,5 +7,8 @@ namespace ProjectName.Types
         public int? PageOffset { get; set; }
         public string? SortField { get; set; }
         public string? SortOrder { get; set; }
+        public Guid? Author { get; set; }
+        public Guid? BlogCategory { get; set; }
+        public Guid? BlogTag { get; set; }
     }
 }

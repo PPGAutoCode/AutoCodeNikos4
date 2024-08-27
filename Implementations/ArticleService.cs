@@ -497,155 +497,203 @@ namespace ProjectName.Services
                 foreach (var field in deleteArticleDto.FieldsToDelete)
                 {
                     // Nullifying the Corresponding Column
-                    await _dbConnection.ExecuteAsync(
-                        $"UPDATE Articles SET {field} = NULL WHERE Id = @Id", new { Id = deleteArticleDto.Id });
+                    var updateQuery = $"UPDATE Articles SET {field} = NULL WHERE Id = @Id";
+                    await _dbConnection.ExecuteAsync(updateQuery, new { Id = deleteArticleDto.Id });
                 }
             }
-            else
+
+            // Step 4: Delete Related Attachments before the SQL transaction
+            if (deleteArticleDto.FieldsToDelete == null)
             {
-                // Step 4: Delete Related Attachment
                 if (article.Pdf != null)
                 {
                     await _attachmentService.DeleteAttachment(new DeleteAttachmentDto { Id = article.Pdf });
                 }
 
-                // Step 5: Delete Related Image
                 if (article.Image != null)
                 {
                     await _imageService.DeleteImage(new DeleteImageDto { Id = article.Image });
                 }
+            }
 
-                // Step 6: Perform Database Updates in a Single Transaction
-                using (var transaction = _dbConnection.BeginTransaction())
+            // Step 5: Perform Database Updates in a Single Transaction
+            using (var transaction = _dbConnection.BeginTransaction())
+            {
+                try
                 {
-                    try
+                    if (deleteArticleDto.FieldsToDelete == null)
                     {
-                        // Step 7: Delete ArticleBlogCategories
+                        // Delete ArticleBlogCategories
                         await _dbConnection.ExecuteAsync(
                             "DELETE FROM ArticleBlogCategories WHERE ArticleId = @ArticleId",
                             new { ArticleId = deleteArticleDto.Id }, transaction);
 
-                        // Step 8: Delete ArticleBlogTags
+                        // Delete ArticleBlogTags
                         await _dbConnection.ExecuteAsync(
                             "DELETE FROM ArticleBlogTags WHERE ArticleId = @ArticleId",
                             new { ArticleId = deleteArticleDto.Id }, transaction);
 
-                        // Step 9: Delete Article
+                        // Delete Article
                         await _dbConnection.ExecuteAsync(
-                            "DELETE FROM Articles WHERE Id = @Id", new { Id = deleteArticleDto.Id }, transaction);
+                            "DELETE FROM Articles WHERE Id = @Id",
+                            new { Id = deleteArticleDto.Id }, transaction);
+                    }
 
-                        // Commit the transaction
-                        transaction.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        transaction.Rollback();
-                        throw new TechnicalException("DP-500", "Technical Error");
-                    }
+                    // Commit the transaction
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw new TechnicalException("DP-500", "Technical Error");
                 }
             }
 
             return true;
         }
 
-        public async Task<List<ArticleDto>> GetListArticle(ListArticleRequestDto requestDto)
-    {
-        // Step 1: Validate the requestDto
-        if (requestDto.PageLimit <= 0 || requestDto.PageOffset < 0)
+        public async Task<List<ArticleDto>> GetListArticle(ListArticleRequestDto request)
         {
-            throw new BusinessException("DP-422", "Client Error");
-        }
-
-        // Step 2: Fetch Articles
-        string sortField = requestDto.SortField ?? "Id";
-        string sortOrder = requestDto.SortOrder ?? "asc";
-        string sql = $"SELECT * FROM Articles ORDER BY {sortField} {sortOrder} OFFSET {requestDto.PageOffset} ROWS FETCH NEXT {requestDto.PageLimit} ROWS ONLY";
-        var articles = await _dbConnection.QueryAsync<Article>(sql);
-
-        var articleDtos = new List<ArticleDto>();
-
-        foreach (var article in articles)
-        {
-            // Step 3: Fetch and Map Associated Author
-            var authorRequestDto = new AuthorRequestDto { Id = article.Author };
-            var authorDto = await _authorService.GetAuthor(authorRequestDto);
-            if (authorDto == null)
+            // Step 1: Validate the request
+            if (request.PageLimit <= 0 || request.PageOffset < 0)
             {
-                throw new TechnicalException("DP-404", "Technical Error");
+                throw new BusinessException("DP-422", "Client Error");
             }
 
-            // Step 4: Fetch and Map Associated Pdf Attachment
-            Attachment pdf = null;
-            if (article.Pdf != null)
+            // Step 2: Fetch Articles
+            var query = "SELECT * FROM Articles";
+            var parameters = new DynamicParameters();
+
+            // Apply filters
+            if (request.Author != null)
             {
-                var attachmentRequestDto = new AttachmentRequestDto { Id = article.Pdf.Value };
-                pdf = await _attachmentService.GetAttachment(attachmentRequestDto);
+                query += " WHERE Author = @Author";
+                parameters.Add("Author", request.Author);
             }
 
-            // Step 5: Fetch and Map Associated Image
-            Image image = null;
-            if (article.Image != null)
+            if (request.BlogCategory != null)
             {
-                var imageRequestDto = new ImageRequestDto { Id = article.Image.Value };
-                image = await _imageService.GetImage(imageRequestDto);
+                query += (query.Contains("WHERE") ? " AND" : " WHERE") + " Id IN (SELECT ArticleId FROM ArticleBlogCategories WHERE BlogCategoryId = @BlogCategory)";
+                parameters.Add("BlogCategory", request.BlogCategory);
             }
 
-            // Step 6: Fetch and Map Associated BlogCategories
-            var blogCategoryIds = await _dbConnection.QueryAsync<Guid>("SELECT BlogCategoryId FROM ArticleBlogCategories WHERE ArticleId = @ArticleId", new { ArticleId = article.Id });
-            var blogCategories = new List<BlogCategory>();
-            foreach (var blogCategoryId in blogCategoryIds)
+            if (request.BlogTag != null)
             {
-                var blogCategoryRequestDto = new BlogCategoryRequestDto { Id = blogCategoryId };
-                var blogCategory = await _blogCategoryService.GetBlogCategory(blogCategoryRequestDto);
-                if (blogCategory == null)
+                query += (query.Contains("WHERE") ? " AND" : " WHERE") + " Id IN (SELECT ArticleId FROM ArticleBlogTags WHERE BlogTagId = @BlogTag)";
+                parameters.Add("BlogTag", request.BlogTag);
+            }
+
+            // Apply sorting
+            if (request.SortField != null && request.SortOrder != null)
+            {
+                query += $" ORDER BY {request.SortField} {request.SortOrder}";
+            }
+            else
+            {
+                query += " ORDER BY Id asc";
+            }
+
+            // Apply pagination
+            query += " OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY";
+            parameters.Add("Offset", request.PageOffset);
+            parameters.Add("Limit", request.PageLimit);
+
+            var articles = await _dbConnection.QueryAsync<Article>(query, parameters);
+
+            // Step 3: Create a list of ArticleDtos
+            var articleDtos = new List<ArticleDto>();
+
+            foreach (var article in articles)
+            {
+                var articleDto = new ArticleDto
+                {
+                    Id = article.Id,
+                    Title = article.Title,
+                    Summary = article.Summary,
+                    Body = article.Body,
+                    GoogleDriveId = article.GoogleDriveId,
+                    HideScrollSpy = article.HideScrollSpy,
+                    Langcode = article.Langcode,
+                    Status = article.Status,
+                    Sticky = article.Sticky,
+                    Promote = article.Promote,
+                    Version = article.Version,
+                    Created = article.Created,
+                    Changed = article.Changed,
+                    CreatorId = article.CreatorId,
+                    ChangedUser = article.ChangedUser
+                };
+
+                // Step 4: Fetch and Map Associated Author
+                var authorRequest = new AuthorRequestDto { Id = article.Author };
+                var author = await _authorService.GetAuthor(authorRequest);
+                if (author == null)
                 {
                     throw new TechnicalException("DP-404", "Technical Error");
                 }
-                blogCategories.Add(blogCategory);
-            }
+                articleDto.Author = author;
 
-            // Step 7: Fetch and Map Related BlogTags
-            List<Guid> blogTagIds = await _dbConnection.QueryAsync<Guid>("SELECT BlogTagId FROM ArticleBlogTags WHERE ArticleId = @ArticleId", new { ArticleId = article.Id }).ConfigureAwait(false) as List<Guid>;
-            var blogTags = new List<BlogTag>();
-            if (blogTagIds != null)
-            {
-                foreach (var blogTagId in blogTagIds)
+                // Step 5: Fetch and Map Associated Pdf Attachment
+                if (article.Pdf != null)
                 {
-                    var blogTagRequestDto = new BlogTagRequestDto { Id = blogTagId };
-                    var blogTag = await _blogTagService.GetBlogTag(blogTagRequestDto);
-                    blogTags.Add(blogTag);
+                    var attachmentRequest = new AttachmentRequestDto { Id = article.Pdf };
+                    var pdf = await _attachmentService.GetAttachment(attachmentRequest);
+                    articleDto.Pdf = pdf;
                 }
+                else
+                {
+                    articleDto.Pdf = null;
+                }
+
+                // Step 6: Fetch and Map Associated Image
+                if (article.Image != null)
+                {
+                    var imageRequest = new ImageRequestDto { Id = article.Image };
+                    var image = await _imageService.GetImage(imageRequest);
+                    articleDto.Image = image;
+                }
+                else
+                {
+                    articleDto.Image = null;
+                }
+
+                // Step 7: Fetch and Map Associated BlogCategories
+                var blogCategoryIds = await _dbConnection.QueryAsync<Guid>("SELECT BlogCategoryId FROM ArticleBlogCategories WHERE ArticleId = @ArticleId", new { ArticleId = article.Id });
+                var blogCategories = new List<BlogCategory>();
+                foreach (var blogCategoryId in blogCategoryIds)
+                {
+                    var blogCategoryRequest = new BlogCategoryRequestDto { Id = blogCategoryId };
+                    var blogCategory = await _blogCategoryService.GetBlogCategory(blogCategoryRequest);
+                    if (blogCategory == null)
+                    {
+                        throw new TechnicalException("DP-404", "Technical Error");
+                    }
+                    blogCategories.Add(blogCategory);
+                }
+                articleDto.BlogCategories = blogCategories;
+
+                // Step 8: Fetch and Map Related BlogTags
+                var blogTagIds = await _dbConnection.QueryAsync<Guid>("SELECT BlogTagId FROM ArticleBlogTags WHERE ArticleId = @ArticleId", new { ArticleId = article.Id });
+                if (blogTagIds != null)
+                {
+                    var blogTags = new List<BlogTag>();
+                    foreach (var blogTagId in blogTagIds)
+                    {
+                        var blogTagRequest = new BlogTagRequestDto { Id = blogTagId };
+                        var blogTag = await _blogTagService.GetBlogTag(blogTagRequest);
+                        blogTags.Add(blogTag);
+                    }
+                    articleDto.BlogTags = blogTags;
+                }
+                else
+                {
+                    articleDto.BlogTags = null;
+                }
+
+                articleDtos.Add(articleDto);
             }
 
-            // Map the Article details to the ArticleDto object
-            var articleDto = new ArticleDto
-            {
-                Id = article.Id,
-                Title = article.Title,
-                Author = authorDto,
-                Summary = article.Summary,
-                Body = article.Body,
-                GoogleDriveId = article.GoogleDriveId,
-                HideScrollSpy = article.HideScrollSpy,
-                Image = image,
-                Pdf = pdf,
-                Langcode = article.Langcode,
-                Status = article.Status,
-                Sticky = article.Sticky,
-                Promote = article.Promote,
-                BlogCategories = blogCategories,
-                BlogTags = blogTags,
-                Version = article.Version,
-                Created = article.Created,
-                Changed = article.Changed,
-                CreatorId = article.CreatorId,
-                ChangedUser = article.ChangedUser
-            };
-
-            articleDtos.Add(articleDto);
+            return articleDtos;
         }
-
-        return articleDtos;
-    }
     }
 }
